@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import logo from "../imgs/logo.png";
+import {  UserContext } from '../App';
 
 
 const Navbar = () => {
@@ -8,6 +9,29 @@ const Navbar = () => {
     const [searchBoxVisibility, setSearchBoxVisibility] = useState(false)
     // searchBoxVisibility :want to show search box or not
     // setSearchBoxVisibility : call if we want to change the functionality of the search box
+    
+    const [ userNavPanel, setUserNavPanel ] = useState(false);
+
+    const { userAuth, userAuth: { access_token, profile_img } } = useContext(UserContext);
+
+    const handleUserNavPanel = () => {
+        setUserNavPanel(currentVal => !currentVal);
+    }
+
+    // const handleSearch = (e) => {
+    //     let query = e.target.value;
+        
+    //     if(e.keyCode == 13 && query.length){
+    //         navigate(`/search/${query}`);
+    //     }
+    // }
+
+    const handleBlur = () => {
+        setTimeout(() => {
+            setUserNavPanel(false);
+        }, 200);
+    }
+    
     return (
         <>
             <nav className="navbar">
@@ -44,20 +68,41 @@ const Navbar = () => {
 
 
 {/* to the editor page so that user can write */}
-                    <Link to="/editor" className="hidden md:flex gap-2 link">
-                        <i className="fi fi-rr-file-edit"></i>
-                        <p>write</p>
-                    </Link>
+                    {
+                        access_token ? 
+                        <>
+                            <Link to="/dashboard/notifications">
+                                <button className="w-12 h-12 rounded-full bg-grey relative hover:bg-black/10">
+                                    <i className="fi fi-rr-bell text-2xl block mt-1"></i>
+                                    {
+                                        new_notification_available ? 
+                                        <span className="bg-red w-3 h-3 rounded-full absolute z-10 top-2 right-2"></span> : ""
+                                    }
+                                    
+                                </button>
+                            </Link>
 
+                            <div className="relative" onClick={handleUserNavPanel} onBlur={handleBlur}>
+                                <button className="w-12 h-12 mt-1">
+                                    <img src={profile_img} className="w-full h-full object-cover rounded-full" />
+                                </button>
 
+                                {
+                                    userNavPanel ? <UserNavigationPanel /> : ""
+                                }
 
-
-                    <Link className="btn-dark py-2" to="/signin">
-                        Sign In
-                    </Link>
-                    <Link className="btn-light py-2 hidden md:block" to="/signup">
-                        Sign Up
-                    </Link>
+                            </div>
+                        </>
+                        :
+                        <>
+                            <Link className="btn-dark py-2" to="/signin">
+                            Sign In
+                            </Link>
+                            <Link className="btn-light py-2 hidden md:block" to="/signup">
+                                Sign Up
+                            </Link>
+                        </>
+                    }
 
                 </div>
 
