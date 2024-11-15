@@ -4,7 +4,7 @@ import AnimationWrapper from "../common/page-animation";
 import defaultBanner from "../imgs/blog banner.png";
 import { uploadImage } from "../common/aws";
 import { useContext, useEffect } from "react";
-import { Toaster, toast } from "react   -hot-toast";
+import { Toaster, toast } from "react-hot-toast";
 // import { useRef } from "react";
 import { EditorContext } from "../pages/editor.pages";
 import EditorJS from "@editorjs/editorjs";
@@ -110,6 +110,59 @@ const BlogEditor = () => {
         .catch((err) => {
           console.log(err);
         });
+    }
+  };
+  const handleSaveDraft = (e) => {
+    if (e.target.className.includes("disable")) {
+      return;
+    }
+
+    if (!title.length) {
+      return toast.error("Write blog title before saving it as a draft");
+    }
+
+    let loadingToast = toast.loading("Saving Draft....");
+
+    e.target.classList.add("disable");
+
+    if (textEditor.isReady) {
+      textEditor.save().then((content) => {
+        let blogObj = {
+          title,
+          banner,
+          des,
+          content,
+          tags,
+          draft: true,
+        };
+
+        axios
+          .post(
+            import.meta.env.VITE_SERVER_DOMAIN + "/create-blog",
+            { ...blogObj, id: blog_id },
+            {
+              headers: {
+                Authorization: `Bearer ${access_token}`,
+              },
+            }
+          )
+          .then(() => {
+            e.target.classList.remove("disable");
+
+            toast.dismiss(loadingToast);
+            toast.success("Saved 👍");
+
+            setTimeout(() => {
+              navigate("/dashboard/blogs?tab=draft");
+            }, 500);
+          })
+          .catch(({ response }) => {
+            e.target.classList.remove("disable");
+            toast.dismiss(loadingToast);
+
+            return toast.error(response.data.error);
+          });
+      });
     }
   };
 
