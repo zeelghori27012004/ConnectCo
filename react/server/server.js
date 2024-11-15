@@ -13,11 +13,6 @@ import { getAuth } from "firebase-admin/auth";
 import fs from 'fs';
 const serviceAccountKey = JSON.parse(fs.readFileSync('./react-js-blog-website-yt-86e29-firebase-adminsdk-eovop-6e77711d08.json', 'utf8'));
 
-
-
-
-
-
 const server = express();
 let PORT = 3000;
 
@@ -34,7 +29,7 @@ server.use(express.json()); //Middle ware
 server.use(cors())
 
 let emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/; // regex for email
-let passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/; // email for password
+let passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/; // regex for password
 
 const generateUsername = async(email)=>{
     let username = email.split("@")[0];
@@ -53,8 +48,6 @@ const formatDatatoSend = (user) => {
         fullname: user.personal_info.fullname
     }
 }
-
-
 
 server.post("/signup",(req,res)=>{
  
@@ -179,7 +172,3 @@ server.post("/google-auth", async (req, res) => {
 server.listen(PORT,()=>{
     console.log('listening on port-> '+PORT);
 })
-
-
-
-
