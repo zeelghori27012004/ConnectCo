@@ -169,10 +169,10 @@ const BlogEditor = () => {
   return (
     <>
       <nav className="navbar">
-        <Link to="/" className="flex-none w-10">
-          <img src={logo} />
+        <Link to="/" className="flex-none w-35 h-20">
+          <img src={logo} className="w-full" />
         </Link>
-        <p className="max-md:hidden text-black line-clamp-1 w-full">
+        <p className="max-md:hidden text-black line-clamp-1 w-full text-3xl">
           {title.length ? title : "New Blog"}
         </p>
 
