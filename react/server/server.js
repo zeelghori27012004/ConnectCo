@@ -57,8 +57,10 @@ const formatDatatoSend = (user) => {
 
 
 server.post("/signup",(req,res)=>{
-    console.log("yess");
+ 
+    console.log(req.body);
     let {fullname , email, password} = req.body;
+
     if(fullname.length < 3){
         return res.status(403).json({"error": "Fullname must be atleast 3 letters long"})
     }
