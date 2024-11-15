@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import logo from "../imgs/logo.jpeg";
 import { UserContext } from "../App";
+import UserNavigationPanel from "./user-navigation.component";
 
 const Navbar = () => {
   const [searchBoxVisibility, setSearchBoxVisibility] = useState(false);
