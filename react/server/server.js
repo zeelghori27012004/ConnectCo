@@ -222,51 +222,104 @@ const verifyJWT = (req, res, next) => {
 
 // Fetch the latest published blogs, limited to 5
 server.get('/latest-blogs', (req, res) => {
+
     let maxLimit = 5; // Maximum number of blogs to return
 
     Blog.find({ draft: false }) // Filter out drafts
-        .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id") // Include author details
+
+        .populate(
+            "author",
+            "personal_info.profile_img personal_info.username personal_info.fullname -_id"
+        ) // Include author details
+
         .sort({ "publishedAt": -1 }) // Sort by the latest publish date
+
         .select("blog_id title des banner activity tags publishedAt -_id") // Select only required fields
+        
         .limit(maxLimit) // Limit results
+        
         .then(blogs => res.status(200).json({ blogs })) // Return blogs in response
+        
         .catch(err => res.status(500).json({ error: err.message })); // Handle errors
 });
 
 // Fetch top 5 trending blogs based on reads, likes, and publish date
 server.get("/trending-blogs", (req, res) => {
+
     Blog.find({ draft: false }) // Filter out drafts
-        .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id") // Include author details
-        .sort({ 
+
+        .populate(
+            "author",
+            "personal_info.profile_img personal_info.username personal_info.fullname -_id"
+        ) // Include author details
+
+        .sort({
             "activity.total_read": -1, // Priority: Most reads
             "activity.total_likes": -1, // Secondary: Most likes
             "publishedAt": -1 // Tertiary: Latest publish date
         })
+
         .select("blog_id title publishedAt -_id") // Select only required fields
+
         .limit(5) // Limit results
+
         .then(blogs => res.status(200).json({ blogs })) // Return blogs in response
+
         .catch(err => res.status(500).json({ error: err.message })); // Handle errors
 });
 
-// Search blogs by tag, query, or author 
+// Search blogs by tag, query, or author
 server.post("/search-blogs", (req, res) => {
+
     let { tag, query, author, page, limit, eliminate_blog } = req.body; // Extract search parameters
 
     // Determine the query conditions dynamically based on provided parameters
-    let findQuery = tag ? { tags: tag, draft: false, blog_id: { $ne: eliminate_blog } } : // Filter by tag
-                   query ? { draft: false, title: new RegExp(query, 'i') } : // Search by query in titles
-                   author ? { author, draft: false } : {}; // Filter by author
+    let findQuery = tag
+        ? { tags: tag, draft: false, blog_id: { $ne: eliminate_blog } } // Filter by tag
+        : query
+        ? { draft: false, title: new RegExp(query, 'i') } // Search by query in titles
+        : author
+        ? { author, draft: false } // Filter by author
+        : {};
 
     let maxLimit = limit ? limit : 2; // Default to 2 results per page if no limit is provided
 
     Blog.find(findQuery)
-        .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id") // Include author details
+
+        .populate(
+            "author",
+            "personal_info.profile_img personal_info.username personal_info.fullname -_id"
+        ) // Include author details
+
         .sort({ "publishedAt": -1 }) // Sort by latest publish date
+
         .select("blog_id title des banner activity tags publishedAt -_id") // Select only required fields
+
         .skip((page - 1) * maxLimit) // Skip for pagination
+
         .limit(maxLimit) // Limit results
+
         .then(blogs => res.status(200).json({ blogs })) // Return blogs in response
+
         .catch(err => res.status(500).json({ error: err.message })); // Handle errors
+});
+
+// Search for users by username with a maximum limit of 50 results
+server.post("/search-users", (req, res) => {
+
+    let { query } = req.body; // Extract search query from the request body
+
+    User.find({ "personal_info.username": new RegExp(query, 'i') }) // Case-insensitive search on usernames
+
+        .limit(50) // Restrict results to a maximum of 50 users
+
+        .select(
+            "personal_info.fullname personal_info.username personal_info.profile_img -_id"
+        ) // Include only specific user details
+
+        .then(users => res.status(200).json({ users })) // Return the matched users
+
+        .catch(err => res.status(500).json({ error: err.message })); // Handle errors with a 500 status
 });
 
 server.post('/create-blog', verifyJWT, (request, response) => {
