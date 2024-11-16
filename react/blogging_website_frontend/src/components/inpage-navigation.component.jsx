@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from "react";
+export let activeTabLineRef;
+export let activeTabRef;
 
 const InPageNavigation = ({ routes, defaultHidden = [], defaultActiveIndex = 0, children }) => {
-    let activeTabLineRef = useRef(); // Ref for the underline indicating the active tab
-    let activeTabRef = useRef(); // Ref for the default active tab
+    activeTabLineRef = useRef(); // Ref for the underline indicating the active tab
+    activeTabRef = useRef(); // Ref for the default active tab
     let [inPageNavIndex, setInPageNavIndex] = useState(defaultActiveIndex); // State for tracking active tab index
 
     // Function to update the position and width of the active tab line
