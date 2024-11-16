@@ -235,11 +235,11 @@ server.get('/latest-blogs', (req, res) => {
         .sort({ "publishedAt": -1 }) // Sort by the latest publish date
 
         .select("blog_id title des banner activity tags publishedAt -_id") // Select only required fields
-        
+
         .limit(maxLimit) // Limit results
-        
+
         .then(blogs => res.status(200).json({ blogs })) // Return blogs in response
-        
+
         .catch(err => res.status(500).json({ error: err.message })); // Handle errors
 });
 
@@ -277,10 +277,10 @@ server.post("/search-blogs", (req, res) => {
     let findQuery = tag
         ? { tags: tag, draft: false, blog_id: { $ne: eliminate_blog } } // Filter by tag
         : query
-        ? { draft: false, title: new RegExp(query, 'i') } // Search by query in titles
-        : author
-        ? { author, draft: false } // Filter by author
-        : {};
+            ? { draft: false, title: new RegExp(query, 'i') } // Search by query in titles
+            : author
+                ? { author, draft: false } // Filter by author
+                : {};
 
     let maxLimit = limit ? limit : 2; // Default to 2 results per page if no limit is provided
 
@@ -321,6 +321,21 @@ server.post("/search-users", (req, res) => {
 
         .catch(err => res.status(500).json({ error: err.message })); // Handle errors with a 500 status
 });
+
+// Get the total count of all non-draft blogs
+server.post("/all-latest-blogs-count", (req, res) => {
+
+    Blog.countDocuments({ draft: false }) // Count non-draft blogs
+        .then(count => {
+            return res.status(200).json({ totalDocs: count }); // Return the total count of blogs
+        })
+        .catch(err => {
+            console.log(err.message); // Log error to the console
+            return res.status(500).json({ error: err.message }); // Return error response
+        });
+
+});
+
 
 server.post('/create-blog', verifyJWT, (request, response) => {
 
