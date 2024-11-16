@@ -25,8 +25,8 @@ admin.initializeApp({
     credential: admin.credential.cert(serviceAccountKey)
 })
 
-mongoose.connect(process.env.DB_LOCATION,{
-    autoIndex : true
+mongoose.connect(process.env.DB_LOCATION, {
+    autoIndex: true
 })
 
 const s3 = new aws.S3({
@@ -55,7 +55,7 @@ server.use(cors())
 let emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/; // regex for email
 let passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/; // regex for password
 
-const generateUsername = async(email)=>{
+const generateUsername = async (email) => {
     let username = email.split("@")[0];
     let isUsernameNotUnique = await User.exists({ "personal_info.username": username }).then((result) => result)
     isUsernameNotUnique ? username += nanoid().substring(0, 5) : "";
@@ -74,80 +74,80 @@ const formatDatatoSend = (user) => {
 }
 
 server.get('/get-upload-url', (request, response) => {
-    generateUploadURL().then(url => response.status(200).json({ uploadURL: url}))
-    .catch(err => {
-        console.log(err.message);
-        return response.status(500).json({ error: err.message})
-    })
+    generateUploadURL().then(url => response.status(200).json({ uploadURL: url }))
+        .catch(err => {
+            console.log(err.message);
+            return response.status(500).json({ error: err.message })
+        })
 })
 
-server.post("/signup",(req,res)=>{
- 
-    console.log(req.body);
-    let {fullname , email, password} = req.body;
+server.post("/signup", (req, res) => {
 
-    if(fullname.length < 3){
-        return res.status(403).json({"error": "Fullname must be atleast 3 letters long"})
+    console.log(req.body);
+    let { fullname, email, password } = req.body;
+
+    if (fullname.length < 3) {
+        return res.status(403).json({ "error": "Fullname must be atleast 3 letters long" })
     }
-    if(!email.length){
-        return res.status(403).json({"error": "Enter Email"})
+    if (!email.length) {
+        return res.status(403).json({ "error": "Enter Email" })
     }
-    if(!emailRegex.test(email)){
-        return res.status(403).json({"error": "Email is invalid"})
+    if (!emailRegex.test(email)) {
+        return res.status(403).json({ "error": "Email is invalid" })
     }
-    if(!passwordRegex.test(password)){
-        return res.status(403).json({"error": "Password should be 6 to 20 characters long with a numeric, 1 lowercase and 1 uppercase letter"})
+    if (!passwordRegex.test(password)) {
+        return res.status(403).json({ "error": "Password should be 6 to 20 characters long with a numeric, 1 lowercase and 1 uppercase letter" })
     }
-    bcrypt.hash(password, 10,async (err, hashed_password)=>{
+    bcrypt.hash(password, 10, async (err, hashed_password) => {
         let username = await generateUsername(email);
         let user = new User({
-            personal_info: {fullname, email, password: hashed_password, username }
+            personal_info: { fullname, email, password: hashed_password, username }
         })
-        user.save().then((u)=>{
+        user.save().then((u) => {
             return res.status(200).json(formatDatatoSend(u))
         })
-        .catch(err=>{
-            if(err.code == 11000){
-                return res.status(500).json({"error": "Email already exists - "+ err.message});
-            }
-            return res.status(500).json({"error": err.message})
-        })
+            .catch(err => {
+                if (err.code == 11000) {
+                    return res.status(500).json({ "error": "Email already exists - " + err.message });
+                }
+                return res.status(500).json({ "error": err.message })
+            })
     })
     //return res.status(200).json({"status": "Loggend In"})
 })
 
-server.post("/signin",(req,res)=>{
-    let {email ,password} = req.body;
+server.post("/signin", (req, res) => {
+    let { email, password } = req.body;
     User.findOne({ "personal_info.email": email })
-    .then((user)=>{
-        if(!user){
-            return res.status(403).json({"error": "Email not found"})
-        }
+        .then((user) => {
+            if (!user) {
+                return res.status(403).json({ "error": "Email not found" })
+            }
 
-        if(!user.google_auth){
-            bcrypt.compare(password, user.personal_info.password, (err, result) => {
+            if (!user.google_auth) {
+                bcrypt.compare(password, user.personal_info.password, (err, result) => {
 
-                if(err) {
-                    return res.status(403).json({ "error": "Error occured while login please try again" });
-                }
-    
-                if(!result){
-                    return res.status(403).json({ "error": "Incorrect password" })
-                } else{
-                    return res.status(200).json(formatDatatoSend(user))
-                }
-    
-            })
-        }
-        else{
-            return res.status(403).json({"error": "Account was created using google.Try logging in with google."})
-        }
+                    if (err) {
+                        return res.status(403).json({ "error": "Error occured while login please try again" });
+                    }
 
-    })
-    .catch(err=>{
-        console.log(err.message);
-        return res.status(500).json({"error": err.message})
-    })
+                    if (!result) {
+                        return res.status(403).json({ "error": "Incorrect password" })
+                    } else {
+                        return res.status(200).json(formatDatatoSend(user))
+                    }
+
+                })
+            }
+            else {
+                return res.status(403).json({ "error": "Account was created using google.Try logging in with google." })
+            }
+
+        })
+        .catch(err => {
+            console.log(err.message);
+            return res.status(500).json({ "error": err.message })
+        })
 })
 
 server.post("/google-auth", async (req, res) => {
@@ -155,49 +155,49 @@ server.post("/google-auth", async (req, res) => {
     let { access_token } = req.body;
 
     getAuth()
-    .verifyIdToken(access_token)
-    .then(async (decodedUser) => {
+        .verifyIdToken(access_token)
+        .then(async (decodedUser) => {
 
-        let { email, name, picture } = decodedUser;
+            let { email, name, picture } = decodedUser;
 
-        picture = picture.replace("s96-c", "s384-c");
+            picture = picture.replace("s96-c", "s384-c");
 
-        let user = await User.findOne({"personal_info.email": email}).select("personal_info.fullname personal_info.username personal_info.profile_img google_auth").then((u) => {
-            return u || null
+            let user = await User.findOne({ "personal_info.email": email }).select("personal_info.fullname personal_info.username personal_info.profile_img google_auth").then((u) => {
+                return u || null
+            })
+                .catch(err => {
+                    return res.status(500).json({ "error": err.message })
+                })
+
+            if (user) { // login
+                if (!user.google_auth) {
+                    return res.status(403).json({ "error": "This email was signed up without google. Please log in with password to access the account" })
+                }
+            }
+            else { // sign up
+
+                let username = await generateUsername(email);
+
+                user = new User({
+                    personal_info: { fullname: name, email, username },
+                    google_auth: true
+                })
+
+                await user.save().then((u) => {
+                    user = u;
+                })
+                    .catch(err => {
+                        return res.status(500).json({ "error": err.message })
+                    })
+
+            }
+
+            return res.status(200).json(formatDatatoSend(user))
+
         })
         .catch(err => {
-            return res.status(500).json({ "error": err.message })
+            return res.status(500).json({ "error": "Failed to authenticate you with google. Try with some other google account" })
         })
-
-        if(user) { // login
-            if(!user.google_auth){
-                return res.status(403).json({ "error": "This email was signed up without google. Please log in with password to access the account" })
-            }
-        }
-        else { // sign up
-            
-            let username = await generateUsername(email);
-
-            user = new User({
-                personal_info: { fullname: name, email, username },
-                google_auth: true
-            })
-
-            await user.save().then((u) => {
-                user = u;
-            })
-            .catch(err => {
-                return res.status(500).json({ "error": err.message })
-            })
-
-        }
-
-        return res.status(200).json(formatDatatoSend(user))
-
-    })
-    .catch(err => {
-        return res.status(500).json({ "error": "Failed to authenticate you with google. Try with some other google account" })
-    })
 
 })
 
@@ -206,12 +206,12 @@ const verifyJWT = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(" ")[1];
 
-    if(token == null){
+    if (token == null) {
         return res.status(401).json({ error: "No Access Token" })
     }
 
     jwt.verify(token, process.env.SECRET_ACCESS_KEY, (err, user) => {
-        if(err){
+        if (err) {
             return res.status(403).json({ error: "Access Token Invalid" })
         }
 
@@ -225,32 +225,63 @@ server.get('/latest-blogs', (req, res) => {
     let maxLimit = 5;
 
     Blog.find({ draft: false })
-    .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id")
-    .sort({ "publishedAt": -1 })
-    .select("blog_id title des banner activity tags publishedAt -_id")
-    .limit(maxLimit)
-    .then(blogs => {
-        return res.status(200).json({ blogs })
-    })
-    .catch(err => {
-        return res.status(500).json({ error: err.message })
-    })
+        .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id")
+        .sort({ "publishedAt": -1 })
+        .select("blog_id title des banner activity tags publishedAt -_id")
+        .limit(maxLimit)
+        .then(blogs => {
+            return res.status(200).json({ blogs })
+        })
+        .catch(err => {
+            return res.status(500).json({ error: err.message })
+        })
 
 })
 
 server.get("/trending-blogs", (req, res) => {
 
     Blog.find({ draft: false })
-    .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id")
-    .sort({ "activity.total_read": -1, "activity.total_likes": -1, "publishedAt": -1 })
-    .select("blog_id title publishedAt -_id")
-    .limit(5)
-    .then(blogs => {
-        return res.status(200).json({ blogs })
-    })
-    .catch(err => {
-        return res.status(500).json({ error: err.message })
-    })
+        .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id")
+        .sort({ "activity.total_read": -1, "activity.total_likes": -1, "publishedAt": -1 })
+        .select("blog_id title publishedAt -_id")
+        .limit(5)
+        .then(blogs => {
+            return res.status(200).json({ blogs })
+        })
+        .catch(err => {
+            return res.status(500).json({ error: err.message })
+        })
+
+})
+
+server.post("/search-blogs", (req, res) => {
+
+    let { tag, query, author, page, limit, eliminate_blog } = req.body;
+
+    let findQuery;
+
+    if (tag) {
+        findQuery = { tags: tag, draft: false, blog_id: { $ne: eliminate_blog } };
+    } else if (query) {
+        findQuery = { draft: false, title: new RegExp(query, 'i') }
+    } else if (author) {
+        findQuery = { author, draft: false }
+    }
+
+    let maxLimit = limit ? limit : 2;
+
+    Blog.find(findQuery)
+        .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id")
+        .sort({ "publishedAt": -1 })
+        .select("blog_id title des banner activity tags publishedAt -_id")
+        .skip((page - 1) * maxLimit)
+        .limit(maxLimit)
+        .then(blogs => {
+            return res.status(200).json({ blogs })
+        })
+        .catch(err => {
+            return res.status(500).json({ error: err.message })
+        })
 
 })
 
@@ -260,24 +291,24 @@ server.post('/create-blog', verifyJWT, (request, response) => {
 
     let { title, des, banner, tags, content, draft } = request.body
 
-    if(!title.length){
+    if (!title.length) {
         return response.status(403).json({ error: "Provide a title" })
     }
 
-    if(!draft){
-        if(!des.length || des.length > 200){
+    if (!draft) {
+        if (!des.length || des.length > 200) {
             return response.status(403).json({ error: "Provide a description in maximum of 200 characters" })
         }
-    
-        if(!banner.length){
+
+        if (!banner.length) {
             return response.status(403).json({ error: "Provide a blog image" })
         }
-    
-        if(!content.blocks.length){
+
+        if (!content.blocks.length) {
             return response.status(403).json({ error: "Provide some blog content" })
         }
 
-        if(!tags.length || tags.length > 7){
+        if (!tags.length || tags.length > 7) {
             return response.status(403).json({ error: "Select some relatable tags, at max 7" })
         }
     }
@@ -292,23 +323,23 @@ server.post('/create-blog', verifyJWT, (request, response) => {
     })
 
     blog.save().then(blog => {
-        
+
         let incrementVal = draft ? 0 : 1;
 
         User.findOneAndUpdate({ _id: authorId }, { $inc: { "account_info.total_posts": incrementVal }, $push: { "blogs": blog._id } })
-        .then(user => {
-            return response.status(200).json({ id: blog.blog_id })
-        })
+            .then(user => {
+                return response.status(200).json({ id: blog.blog_id })
+            })
+            .catch(err => {
+                return response.status(500).json({ error: "Failed to update post count" })
+            })
+    })
         .catch(err => {
-            return response.status(500).json({ error: "Failed to update post count" })
+            return response.status(500).json({ error: err.message })
         })
-    })
-    .catch(err => {
-        return response.status(500).json({ error: err.message })
-    })
 
 })
 
-server.listen(PORT,()=>{
-    console.log('listening on port-> '+PORT);
+server.listen(PORT, () => {
+    console.log('listening on port-> ' + PORT);
 })  
