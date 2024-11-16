@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 //import Connection from './db.js';
 import 'dotenv/config'
 import User from './Schema/User.js';
+import Blog from './Schema/Blog.js';
 import bcrypt from 'bcryptjs';
 import { nanoid } from 'nanoid';
 import jwt from 'jsonwebtoken';
@@ -12,6 +13,10 @@ import admin from 'firebase-admin';
 import { getAuth } from "firebase-admin/auth";
 import fs from 'fs';
 const serviceAccountKey = JSON.parse(fs.readFileSync('./react-js-blog-website-yt-86e29-firebase-adminsdk-eovop-6e77711d08.json', 'utf8'));
+import aws from 'aws-sdk';
+
+
+
 
 const server = express();
 let PORT = 3000;
@@ -24,6 +29,25 @@ mongoose.connect(process.env.DB_LOCATION,{
     autoIndex : true
 })
 
+const s3 = new aws.S3({
+    region: 'ap-south-1',
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+})
+
+
+const generateUploadURL = async () => {
+
+    const date = new Date();
+    const imageName = `${nanoid}-${date.getTime()}.jpeg`;
+
+    return await s3.getSignedUrlPromise('putObject', {
+        Bucket: 'connectco-bucket',
+        Key: imageName,
+        Expires: 1000,
+        ContentType: "image/jpeg"
+    })
+}
 
 server.use(express.json()); //Middle ware
 server.use(cors())
@@ -48,6 +72,14 @@ const formatDatatoSend = (user) => {
         fullname: user.personal_info.fullname
     }
 }
+
+server.get('/get-upload-url', (request, response) => {
+    generateUploadURL().then(url => response.status(200).json({ uploadURL: url}))
+    .catch(err => {
+        console.log(err.message);
+        return response.status(500).json({ error: err.message})
+    })
+})
 
 server.post("/signup",(req,res)=>{
  
@@ -169,6 +201,80 @@ server.post("/google-auth", async (req, res) => {
 
 })
 
+const verifyJWT = (req, res, next) => {
+
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(" ")[1];
+
+    if(token == null){
+        return res.status(401).json({ error: "No Access Token" })
+    }
+
+    jwt.verify(token, process.env.SECRET_ACCESS_KEY, (err, user) => {
+        if(err){
+            return res.status(403).json({ error: "Access Token Invalid" })
+        }
+
+        req.user = user.id;
+        next();
+    })
+}
+
+server.post('/create-blog', verifyJWT, (request, response) => {
+
+    let authorId = request.user;
+
+    let { title, des, banner, tags, content, draft } = request.body
+
+    if(!title.length){
+        return response.status(403).json({ error: "Provide a title" })
+    }
+
+    if(!draft){
+        if(!des.length || des.length > 200){
+            return response.status(403).json({ error: "Provide a description in maximum of 200 characters" })
+        }
+    
+        if(!banner.length){
+            return response.status(403).json({ error: "Provide a blog image" })
+        }
+    
+        if(!content.blocks.length){
+            return response.status(403).json({ error: "Provide some blog content" })
+        }
+
+        if(!tags.length || tags.length > 7){
+            return response.status(403).json({ error: "Select some relatable tags, at max 7" })
+        }
+    }
+
+    tags = tags.map(tag => tag.toLowerCase());
+
+    let blog_id = title.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\s+/g, '-').trim() + nanoid();
+    console.log(blog_id);
+
+    let blog = new Blog({
+        title, des, banner, content, tags, author: authorId, blog_id, draft: Boolean(draft)
+    })
+
+    blog.save().then(blog => {
+        
+        let incrementVal = draft ? 0 : 1;
+
+        User.findOneAndUpdate({ _id: authorId }, { $inc: { "account_info.total_posts": incrementVal }, $push: { "blogs": blog._id } })
+        .then(user => {
+            return response.status(200).json({ id: blog.blog_id })
+        })
+        .catch(err => {
+            return response.status(500).json({ error: "Failed to update post count" })
+        })
+    })
+    .catch(err => {
+        return response.status(500).json({ error: err.message })
+    })
+
+})
+
 server.listen(PORT,()=>{
     console.log('listening on port-> '+PORT);
-})
+})  
