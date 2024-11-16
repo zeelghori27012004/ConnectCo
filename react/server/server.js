@@ -220,70 +220,54 @@ const verifyJWT = (req, res, next) => {
     })
 }
 
+// Fetch the latest published blogs, limited to 5
 server.get('/latest-blogs', (req, res) => {
+    let maxLimit = 5; // Maximum number of blogs to return
 
-    let maxLimit = 5;
+    Blog.find({ draft: false }) // Filter out drafts
+        .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id") // Include author details
+        .sort({ "publishedAt": -1 }) // Sort by the latest publish date
+        .select("blog_id title des banner activity tags publishedAt -_id") // Select only required fields
+        .limit(maxLimit) // Limit results
+        .then(blogs => res.status(200).json({ blogs })) // Return blogs in response
+        .catch(err => res.status(500).json({ error: err.message })); // Handle errors
+});
 
-    Blog.find({ draft: false })
-        .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id")
-        .sort({ "publishedAt": -1 })
-        .select("blog_id title des banner activity tags publishedAt -_id")
-        .limit(maxLimit)
-        .then(blogs => {
-            return res.status(200).json({ blogs })
-        })
-        .catch(err => {
-            return res.status(500).json({ error: err.message })
-        })
-
-})
-
+// Fetch top 5 trending blogs based on reads, likes, and publish date
 server.get("/trending-blogs", (req, res) => {
-
-    Blog.find({ draft: false })
-        .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id")
-        .sort({ "activity.total_read": -1, "activity.total_likes": -1, "publishedAt": -1 })
-        .select("blog_id title publishedAt -_id")
-        .limit(5)
-        .then(blogs => {
-            return res.status(200).json({ blogs })
+    Blog.find({ draft: false }) // Filter out drafts
+        .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id") // Include author details
+        .sort({ 
+            "activity.total_read": -1, // Priority: Most reads
+            "activity.total_likes": -1, // Secondary: Most likes
+            "publishedAt": -1 // Tertiary: Latest publish date
         })
-        .catch(err => {
-            return res.status(500).json({ error: err.message })
-        })
+        .select("blog_id title publishedAt -_id") // Select only required fields
+        .limit(5) // Limit results
+        .then(blogs => res.status(200).json({ blogs })) // Return blogs in response
+        .catch(err => res.status(500).json({ error: err.message })); // Handle errors
+});
 
-})
-
+// Search blogs by tag, query, or author 
 server.post("/search-blogs", (req, res) => {
+    let { tag, query, author, page, limit, eliminate_blog } = req.body; // Extract search parameters
 
-    let { tag, query, author, page, limit, eliminate_blog } = req.body;
+    // Determine the query conditions dynamically based on provided parameters
+    let findQuery = tag ? { tags: tag, draft: false, blog_id: { $ne: eliminate_blog } } : // Filter by tag
+                   query ? { draft: false, title: new RegExp(query, 'i') } : // Search by query in titles
+                   author ? { author, draft: false } : {}; // Filter by author
 
-    let findQuery;
-
-    if (tag) {
-        findQuery = { tags: tag, draft: false, blog_id: { $ne: eliminate_blog } };
-    } else if (query) {
-        findQuery = { draft: false, title: new RegExp(query, 'i') }
-    } else if (author) {
-        findQuery = { author, draft: false }
-    }
-
-    let maxLimit = limit ? limit : 2;
+    let maxLimit = limit ? limit : 2; // Default to 2 results per page if no limit is provided
 
     Blog.find(findQuery)
-        .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id")
-        .sort({ "publishedAt": -1 })
-        .select("blog_id title des banner activity tags publishedAt -_id")
-        .skip((page - 1) * maxLimit)
-        .limit(maxLimit)
-        .then(blogs => {
-            return res.status(200).json({ blogs })
-        })
-        .catch(err => {
-            return res.status(500).json({ error: err.message })
-        })
-
-})
+        .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id") // Include author details
+        .sort({ "publishedAt": -1 }) // Sort by latest publish date
+        .select("blog_id title des banner activity tags publishedAt -_id") // Select only required fields
+        .skip((page - 1) * maxLimit) // Skip for pagination
+        .limit(maxLimit) // Limit results
+        .then(blogs => res.status(200).json({ blogs })) // Return blogs in response
+        .catch(err => res.status(500).json({ error: err.message })); // Handle errors
+});
 
 server.post('/create-blog', verifyJWT, (request, response) => {
 
