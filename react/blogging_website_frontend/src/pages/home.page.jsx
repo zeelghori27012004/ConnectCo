@@ -9,6 +9,7 @@ import BlogPostCard from '../components/blog-post.component';
 const HomePage = () => {
     
     let [blogs, setBlog] = useState(null);
+    let [trendingBlogs, setTrendingBlog] = useState(null);
     const fetchLatestBlogs = () => {
         axios.get(import.meta.env.VITE_SERVER_DOMAIN + "/latest-blogs")
         .then(({data}) => {
@@ -19,8 +20,19 @@ const HomePage = () => {
         })
     }
 
+    const fetchTrendingBlogs = () => {
+        axios.get(import.meta.env.VITE_SERVER_DOMAIN + "/trending-blogs")
+        .then(({data}) => {
+            setTrendingBlog(data.blogs);
+        })
+        .catch(err => {
+            console.log(err);
+        })
+    }
+
     useEffect(() => {
         fetchLatestBlogs();
+        fetchTrendingBlogs();
     },[]);
   return (
     <AnimationWrapper>
@@ -38,7 +50,16 @@ const HomePage = () => {
                             
                         }
                     </>
-                    <h1>Trending Blogs here</h1>
+
+                    {
+                            trendingBlogs==null ? <Loader/>: 
+                            trendingBlogs.map((blog,i) => {
+                                return <AnimationWrapper transition={{duration: 1,delay: i*0.1}} key={i}>
+                                    <BlogPostCard content={blog} author={blog.author.personal_info}/>                                </AnimationWrapper>
+                                })
+                            
+                    }
+                    
                 </InPageNavigation>
             </div>
             {/* filters and trending blogs */}
