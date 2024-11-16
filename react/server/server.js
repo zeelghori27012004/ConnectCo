@@ -220,9 +220,7 @@ const verifyJWT = (req, res, next) => {
     })
 }
 
-server.post('/latest-blogs', (req, res) => {
-
-    let { page } = req.body;
+server.get('/latest-blogs', (req, res) => {
 
     let maxLimit = 5;
 
@@ -230,7 +228,6 @@ server.post('/latest-blogs', (req, res) => {
     .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id")
     .sort({ "publishedAt": -1 })
     .select("blog_id title des banner activity tags publishedAt -_id")
-    .skip((page - 1) * maxLimit)
     .limit(maxLimit)
     .then(blogs => {
         return res.status(200).json({ blogs })
