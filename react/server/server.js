@@ -326,9 +326,11 @@ server.post("/search-users", (req, res) => {
 server.post("/all-latest-blogs-count", (req, res) => {
 
     Blog.countDocuments({ draft: false }) // Count non-draft blogs
+
         .then(count => {
             return res.status(200).json({ totalDocs: count }); // Return the total count of blogs
         })
+
         .catch(err => {
             console.log(err.message); // Log error to the console
             return res.status(500).json({ error: err.message }); // Return error response
@@ -336,6 +338,39 @@ server.post("/all-latest-blogs-count", (req, res) => {
 
 });
 
+// Get the count of blogs based on search criteria (tag, query, or author)
+server.post("/search-blogs-count", (req, res) => {
+
+    let { tag, author, query } = req.body; // Extract search parameters
+    
+    let findQuery; // Initialize the query object
+
+    // Build the search query dynamically based on provided parameters
+    if (tag) {
+        findQuery = { tags: tag, draft: false }; // Filter by tag
+    } 
+    
+    else if (query) {
+        findQuery = { draft: false, title: new RegExp(query, 'i') }; // Search by query in titles
+    } 
+    
+    else if (author) {
+        findQuery = { author, draft: false }; // Filter by author
+    }
+
+    // Count the number of documents matching the search query
+    Blog.countDocuments(findQuery)
+
+        .then(count => {
+            return res.status(200).json({ totalDocs: count }); // Return the total count of blogs
+        })
+       
+        .catch(err => {
+            console.log(err.message); // Log the error message to the console
+            return res.status(500).json({ error: err.message }); // Return error response
+        });
+
+});
 
 server.post('/create-blog', verifyJWT, (request, response) => {
 
