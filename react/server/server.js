@@ -342,18 +342,18 @@ server.post("/all-latest-blogs-count", (req, res) => {
 server.post("/search-blogs-count", (req, res) => {
 
     let { tag, author, query } = req.body; // Extract search parameters
-    
+
     let findQuery; // Initialize the query object
 
     // Build the search query dynamically based on provided parameters
     if (tag) {
         findQuery = { tags: tag, draft: false }; // Filter by tag
-    } 
-    
+    }
+
     else if (query) {
         findQuery = { draft: false, title: new RegExp(query, 'i') }; // Search by query in titles
-    } 
-    
+    }
+
     else if (author) {
         findQuery = { author, draft: false }; // Filter by author
     }
@@ -364,7 +364,7 @@ server.post("/search-blogs-count", (req, res) => {
         .then(count => {
             return res.status(200).json({ totalDocs: count }); // Return the total count of blogs
         })
-       
+
         .catch(err => {
             console.log(err.message); // Log the error message to the console
             return res.status(500).json({ error: err.message }); // Return error response
@@ -374,7 +374,7 @@ server.post("/search-blogs-count", (req, res) => {
 
 // Handle POST request to fetch user profile based on the username
 server.post("/get-profile", (req, res) => {
-    
+
     let { username } = req.body; // Extract username from the request body
 
     // Find user by username and exclude sensitive or unnecessary fields
@@ -391,6 +391,27 @@ server.post("/get-profile", (req, res) => {
             return res.status(500).json({ error: err.message }); // Send error response
         });
 });
+
+// Endpoint to update the user's profile image
+server.post("/update-profile-img", verifyJWT, (req, res) => {
+
+    let { url } = req.body; // Extract new profile image URL from the request body
+
+    // Update the user's profile image based on their authenticated user ID
+    User.findOneAndUpdate(
+        { _id: req.user }, // Match the user by ID from the verified token
+        { "personal_info.profile_img": url } // Update the profile image field
+    )
+
+        .then(() => {
+            return res.status(200).json({ profile_img: url }); // Respond with the updated profile image
+        })
+
+        .catch(err => {
+            return res.status(500).json({ error: err.message }); // Handle any errors
+        });
+});
+
 
 server.post('/create-blog', verifyJWT, (request, response) => {
 
