@@ -342,18 +342,18 @@ server.post("/all-latest-blogs-count", (req, res) => {
 server.post("/search-blogs-count", (req, res) => {
 
     let { tag, author, query } = req.body; // Extract search parameters
-    
+
     let findQuery; // Initialize the query object
 
     // Build the search query dynamically based on provided parameters
     if (tag) {
         findQuery = { tags: tag, draft: false }; // Filter by tag
-    } 
-    
+    }
+
     else if (query) {
         findQuery = { draft: false, title: new RegExp(query, 'i') }; // Search by query in titles
-    } 
-    
+    }
+
     else if (author) {
         findQuery = { author, draft: false }; // Filter by author
     }
@@ -364,12 +364,120 @@ server.post("/search-blogs-count", (req, res) => {
         .then(count => {
             return res.status(200).json({ totalDocs: count }); // Return the total count of blogs
         })
-       
+
         .catch(err => {
             console.log(err.message); // Log the error message to the console
             return res.status(500).json({ error: err.message }); // Return error response
         });
 
+});
+
+// Handle POST request to fetch user profile based on the username
+server.post("/get-profile", (req, res) => {
+
+    let { username } = req.body; // Extract username from the request body
+
+    // Find user by username and exclude sensitive or unnecessary fields
+    User.findOne({ "personal_info.username": username })
+
+        .select("-personal_info.password -google_auth -updatedAt -blogs")
+
+        .then(user => {
+            return res.status(200).json(user); // Send user details in the response
+        })
+
+        .catch(err => {
+            console.error(err); // Log error for debugging
+            return res.status(500).json({ error: err.message }); // Send error response
+        });
+});
+
+// Endpoint to update the user's profile image
+server.post("/update-profile-img", verifyJWT, (req, res) => {
+
+    let { url } = req.body; // Extract new profile image URL from the request body
+
+    // Update the user's profile image based on their authenticated user ID
+    User.findOneAndUpdate(
+        { _id: req.user }, // Match the user by ID from the verified token
+        { "personal_info.profile_img": url } // Update the profile image field
+    )
+
+        .then(() => {
+            return res.status(200).json({ profile_img: url }); // Respond with the updated profile image
+        })
+
+        .catch(err => {
+            return res.status(500).json({ error: err.message }); // Handle any errors
+        });
+});
+
+// Endpoint to update user's profile details
+server.post("/update-profile", verifyJWT, (req, res) => {
+
+    let { username, bio, social_links } = req.body; // Extract data from the request body
+
+    let bioLimit = 150; // Define the bio character limit
+
+    // Validate username length
+    if (username.length < 3) {
+        return res.status(403).json({ error: "Username should be at least 3 letters long" });
+    }
+
+    // Validate bio length
+    if (bio.length > bioLimit) {
+        return res.status(403).json({ error: `Bio should not be more than ${bioLimit} characters` });
+    }
+
+    let socialLinksArr = Object.keys(social_links); // Extract social link keys for validation
+
+    try {
+        // Validate each social link's format
+        for (let i = 0; i < socialLinksArr.length; i++) {
+
+            if (social_links[socialLinksArr[i]].length) {
+
+                let hostname = new URL(social_links[socialLinksArr[i]]).hostname; // Parse URL
+
+                // Check if hostname matches the expected format
+                if (!hostname.includes(`${socialLinksArr[i]}.com`) && socialLinksArr[i] !== 'website') {
+
+                    return res.status(403).json({ error: `${socialLinksArr[i]} link is invalid. You must enter a full link` });
+
+                }
+
+            }
+
+        }
+    }
+
+    catch (err) {
+        // Handle invalid URL formatting
+        return res.status(500).json({ error: "You must provide full social links with http(s) included" });
+    }
+
+    // Construct the object to update
+    let updateObj = {
+        "personal_info.username": username,
+        "personal_info.bio": bio,
+        social_links
+    };
+
+    // Update user profile in the database
+    User.findOneAndUpdate({ _id: req.user }, updateObj, { runValidators: true })
+
+        .then(() => {
+            return res.status(200).json({ username }); // Respond with the updated username
+        })
+
+        .catch(err => {
+            // Handle duplicate username error
+            if (err.code == 11000) {
+                return res.status(409).json({ error: "Username is already taken" });
+            }
+            // Handle other errors
+            return res.status(500).json({ error: err.message });
+        });
 });
 
 server.post('/create-blog', verifyJWT, (request, response) => {
