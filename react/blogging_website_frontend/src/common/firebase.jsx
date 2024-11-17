@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { newGoogleAuthProvider, getAuth } from 'firebase/auth';
+import { GoogleAuthProvider, getAuth, signInWithPopup } from 'firebase/auth'
 // import toast from "react-hot-toast";
 const firebaseConfig = {
   apiKey: "AIzaSyAQV-67FeJJTSk_2n4yGRsLy-3OJ8gle2U",
@@ -10,7 +10,7 @@ const firebaseConfig = {
   appId: "1:1016673754791:web:d1cae4802b45ac044e4582"
 };
 const app = initializeApp(firebaseConfig);
-const provider = newGoogleAuthProvider();
+const provider = new GoogleAuthProvider();
 const auth = getAuth();
 export const authWithGoogle = async () => {
     let user = NULL;
