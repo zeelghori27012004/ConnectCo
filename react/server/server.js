@@ -412,6 +412,73 @@ server.post("/update-profile-img", verifyJWT, (req, res) => {
         });
 });
 
+// Endpoint to update user's profile details
+server.post("/update-profile", verifyJWT, (req, res) => {
+
+    let { username, bio, social_links } = req.body; // Extract data from the request body
+
+    let bioLimit = 150; // Define the bio character limit
+
+    // Validate username length
+    if (username.length < 3) {
+        return res.status(403).json({ error: "Username should be at least 3 letters long" });
+    }
+
+    // Validate bio length
+    if (bio.length > bioLimit) {
+        return res.status(403).json({ error: `Bio should not be more than ${bioLimit} characters` });
+    }
+
+    let socialLinksArr = Object.keys(social_links); // Extract social link keys for validation
+
+    try {
+        // Validate each social link's format
+        for (let i = 0; i < socialLinksArr.length; i++) {
+
+            if (social_links[socialLinksArr[i]].length) {
+
+                let hostname = new URL(social_links[socialLinksArr[i]]).hostname; // Parse URL
+
+                // Check if hostname matches the expected format
+                if (!hostname.includes(`${socialLinksArr[i]}.com`) && socialLinksArr[i] !== 'website') {
+
+                    return res.status(403).json({ error: `${socialLinksArr[i]} link is invalid. You must enter a full link` });
+
+                }
+
+            }
+
+        }
+    }
+
+    catch (err) {
+        // Handle invalid URL formatting
+        return res.status(500).json({ error: "You must provide full social links with http(s) included" });
+    }
+
+    // Construct the object to update
+    let updateObj = {
+        "personal_info.username": username,
+        "personal_info.bio": bio,
+        social_links
+    };
+
+    // Update user profile in the database
+    User.findOneAndUpdate({ _id: req.user }, updateObj, { runValidators: true })
+
+        .then(() => {
+            return res.status(200).json({ username }); // Respond with the updated username
+        })
+
+        .catch(err => {
+            // Handle duplicate username error
+            if (err.code == 11000) {
+                return res.status(409).json({ error: "Username is already taken" });
+            }
+            // Handle other errors
+            return res.status(500).json({ error: err.message });
+        });
+});
 
 server.post('/create-blog', verifyJWT, (request, response) => {
 
