@@ -9,13 +9,15 @@ import NoDataMessage from "../components/nodata.component";
 import LoadMoreDataBtn from "../components/load-more.component";
 import axios from "axios";
 import { filterPaginationData } from "../common/filter-pagination-data";
-
+import UserCard from "../components/usercard.component";
 
 
 const SearchPage = () => {
   
     let { query } = useParams()
     let [ blogs, setBlog ] = useState(null);
+    let [ users, setUsers ] = useState(null);
+
     const searchBlogs = ({ page = 1, create_new_arr = false }) => {
         axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/search-blogs", { query, page })
         .then(async ({ data }) => {
@@ -34,22 +36,46 @@ const SearchPage = () => {
           });
     }
 
+    const fetchUsers = () => {
+        axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/search-blogs", { query })
+        .then(({ data : { users } } ) => {
+            setUsers(users);
+        })
+    }
     useEffect(() => {
-        // resetState(); screen was going blank after using this, so maybe you have to use this after
+        resetState(); 
+        // screen was going blank after using this, so maybe you have to use this after
         // integrating with backend 
         searchBlogs({page: 1, create_new_arr: true });
+        fetchUsers();
     },[query])
 
     const resetState = () => {
         setBlog(null);
         setUsers(null);
     }
+    const UserCardWrapper = () => {
+        return (
+            <>
+                {
+                    users == null ? <Loader /> :
+                        users.length ? 
+                            users.map((user, i) => {
+                                return <AnimationWrapper key={i} transition={{ duration: 1, delay: i*0.08 }}>
+                                    <UserCard user= { user } />
+                                </AnimationWrapper>
+                            })
+                        : <NoDataMessage message="No user found" />
+                }
+            </>
+        )
+    }
 
     return (
         <section className="h-cover flex justify-center gap-10">
 
         <div className="w-full">
-            <InPageNavigation routes={[`Search Results from "${query}"`, "Accounts Matched"]} defaultHidden={["Accounts Matched"]} >
+            <InPageNavigation routes={[`Search Results from "${query}"`, "Accounts Matched"]} >
                 <>
                 {blogs == null ? (
                 <Loader />
@@ -72,6 +98,7 @@ const SearchPage = () => {
               )}
               <LoadMoreDataBtn state={blogs} fetchDataFun={(searchBlogs)}/>
                 </>
+                <UserCardWrapper/>
             </InPageNavigation>
 
         </div>
