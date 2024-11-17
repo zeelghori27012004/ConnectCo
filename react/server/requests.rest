@@ -1,7 +1,1 @@
-POST http://localhost:3000/signin
-Content-Type: application/json
-
-{
-    "email": "zeelghori@gmail.com",
-    "password": "Zeel123"
-}
+POST  http://localhost:3000/latest-blogs

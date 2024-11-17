@@ -221,8 +221,10 @@ const verifyJWT = (req, res, next) => {
 }
 
 // Fetch the latest published blogs, limited to 5
-server.get('/latest-blogs', (req, res) => {
-
+server.post('/latest-blogs', (req, res) => {
+    
+    let { page } = req.body ; 
+    
     let maxLimit = 5; // Maximum number of blogs to return
 
     Blog.find({ draft: false }) // Filter out drafts
@@ -233,8 +235,10 @@ server.get('/latest-blogs', (req, res) => {
         ) // Include author details
 
         .sort({ "publishedAt": -1 }) // Sort by the latest publish date
-
+        
         .select("blog_id title des banner activity tags publishedAt -_id") // Select only required fields
+        
+        .skip((page-1)*maxLimit)
 
         .limit(maxLimit) // Limit results
 
@@ -274,13 +278,19 @@ server.post("/search-blogs", (req, res) => {
     let { tag, query, author, page, limit, eliminate_blog } = req.body; // Extract search parameters
 
     // Determine the query conditions dynamically based on provided parameters
-    let findQuery = tag
-        ? { tags: tag, draft: false, blog_id: { $ne: eliminate_blog } } // Filter by tag
-        : query
-            ? { draft: false, title: new RegExp(query, 'i') } // Search by query in titles
-            : author
-                ? { author, draft: false } // Filter by author
-                : {};
+    let findQuery;
+
+    if(tag){   // Filter by tags
+        findQuery = { tags: tag, draft: false, blog_id: { $ne: eliminate_blog } };
+    } 
+    
+    else if(query){     // Search by queries given
+        findQuery = { draft: false, title: new RegExp(query, 'i') } 
+    } 
+    
+    else if(author) {    // Search by Author
+        findQuery = { author, draft: false }
+    }
 
     let maxLimit = limit ? limit : 2; // Default to 2 results per page if no limit is provided
 
