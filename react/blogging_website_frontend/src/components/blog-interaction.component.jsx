@@ -9,7 +9,7 @@ const BlogInteraction = () => {
   let {
     blog,
     blog: {
-      //   _id,
+      _id,
       title,
       blog_id,
       activity,
@@ -50,40 +50,40 @@ const BlogInteraction = () => {
     }
   }, []);
 
-  //   const handleLike = () => {
-  //     if (access_token) {
-  //       // like the blog
-  //       setLikedByUser((preVal) => !preVal);
+  const handleLike = () => {
+    if (access_token) {
+      // like the blog
+      setLikedByUser((preVal) => !preVal);
 
-  //       !islikedByUser ? total_likes++ : total_likes--;
+      !islikedByUser ? total_likes++ : total_likes--;
 
-  //       setBlog({ ...blog, activity: { ...activity, total_likes } });
+      setBlog({ ...blog, activity: { ...activity, total_likes } });
 
-  //       axios
-  //         .post(
-  //           import.meta.env.VITE_SERVER_DOMAIN + "/like-blog",
-  //           { _id, islikedByUser },
-  //           {
-  //             headers: {
-  //               Authorization: `Bearer ${access_token}`,
-  //             },
-  //           }
-  //         )
-  //         .then(({ data }) => {
-  //           console.log(data);
-  //         })
-  //         .catch((err) => {
-  //           console.log(err);
-  //         });
-  //     } else {
-  //       // not logged in
-  //       toast.error("please login to like this blog");
-  //     }
-  //   };
+      axios
+        .post(
+          import.meta.env.VITE_SERVER_DOMAIN + "/like-blog",
+          { _id, islikedByUser },
+          {
+            headers: {
+              Authorization: `Bearer ${access_token}`,
+            },
+          }
+        )
+        .then(({ data }) => {
+          console.log(data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      // not logged in
+      toast.error("please login to like this blog");
+    }
+  };
 
   return (
     <>
-      {/* <Toaster /> */}
+      <Toaster />
       <hr className="border-grey my-2" />
 
       <div className="flex gap-6 justify-between">
