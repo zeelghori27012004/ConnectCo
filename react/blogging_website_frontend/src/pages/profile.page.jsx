@@ -4,6 +4,13 @@ import { Link, useParams } from "react-router-dom";
 import AnimationWrapper from "../common/page-animation";
 import Loader from "../components/loader.component";
 import { UserContext } from "../App";
+import AboutUser from "../components/about.component";
+import { filterPaginationData } from "../common/filter-pagination-data";
+import InPageNavigation from "../components/inpage-navigation.component";
+import BlogPostCard from "../components/blog-post.component";
+import NoDataMessage from "../components/nodata.component";
+import LoadMoreDataBtn from "../components/load-more.component";
+import PageNotFound from "./404.page";
 
 export const profileDataStructure = {
     personal_info: {
@@ -54,10 +61,52 @@ const ProfilePage = () => {
         })
     }
 
+    const getBlogs = ({ page = 1, user_id }) => {
+
+        user_id = user_id == undefined ? blogs.user_id : user_id;
+
+        axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/search-blogs", {
+            author: user_id,
+            page
+        })
+        .then( async ({ data }) => {
+            
+            let formatedDate = await filterPaginationData({
+                state: blogs,
+                data: data.blogs,
+                page,
+                countRoute: "/search-blogs-count",
+                data_to_send: { author: user_id }
+            })
+
+            formatedDate.user_id = user_id;
+            setBlogs(formatedDate);
+
+        })
+
+    }
+
+
 
     useEffect(() => {
-        fetchUserProfile();
-    }, []);
+
+        if(profileId != profileLoaded){
+            setBlogs(null);
+        }
+
+        if(blogs == null){
+            resetStates();
+            fetchUserProfile();
+        }
+
+    }, [profileId, blogs])
+
+    const resetStates = () => {
+        setProfile(profileDataStructure);
+        setLoading(true);
+        setProfileLoaded("");
+    }
+
 
     return (
         <AnimationWrapper>
