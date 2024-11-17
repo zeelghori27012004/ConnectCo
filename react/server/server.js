@@ -372,6 +372,26 @@ server.post("/search-blogs-count", (req, res) => {
 
 });
 
+// Handle POST request to fetch user profile based on the username
+server.post("/get-profile", (req, res) => {
+    
+    let { username } = req.body; // Extract username from the request body
+
+    // Find user by username and exclude sensitive or unnecessary fields
+    User.findOne({ "personal_info.username": username })
+
+        .select("-personal_info.password -google_auth -updatedAt -blogs")
+
+        .then(user => {
+            return res.status(200).json(user); // Send user details in the response
+        })
+
+        .catch(err => {
+            console.error(err); // Log error for debugging
+            return res.status(500).json({ error: err.message }); // Send error response
+        });
+});
+
 server.post('/create-blog', verifyJWT, (request, response) => {
 
     let authorId = request.user;
