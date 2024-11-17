@@ -25,6 +25,9 @@ const ProfilePage = () => {
 
     let [profile, setProfile] = useState(profileDataStructure);
     let [loading, setLoading] = useState(true);
+    let [ blogs, setBlogs ] = useState(null);
+    let [ profileLoaded, setProfileLoaded ] = useState("");
+
     
     let {
         personal_info: { fullname, username: profile_username, profile_img, bio },
@@ -38,16 +41,19 @@ const ProfilePage = () => {
     const fetchUserProfile = () => {
         axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/get-profile", { username: profileId })
         .then(({ data: user }) => {
-            if (user != null) {
+            if(user != null){
                 setProfile(user);
             }
+            setProfileLoaded(profileId)
+            getBlogs({ user_id: user._id })
             setLoading(false);
         })
         .catch(err => {
             console.log(err);
             setLoading(false);
-        });
-    };
+        })
+    }
+
 
     useEffect(() => {
         fetchUserProfile();
@@ -70,6 +76,8 @@ const ProfilePage = () => {
                                     : " "
                                 }
                             </div>
+                            <AboutUser className="max-md:hidden" bio={bio} social_links={social_links} joinedAt={joinedAt} />
+
                         </div>
                     </section>
             }
