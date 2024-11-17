@@ -1,12 +1,6 @@
 import axios from "axios";
 import { createContext, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Link, useParams } from "react-router-dom";
-import AnimationWrapper from "../common/page-animation";
-import Loader from "../components/loader.component";
-import axios from "axios";
-import { createContext, useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
 import AnimationWrapper from "../common/page-animation";
 import Loader from "../components/loader.component";
 import { getDay } from "../common/date";
@@ -30,9 +24,13 @@ export const BlogContext = createContext({});
 
 const BlogPage = () => {
   let { blog_id } = useParams();
+
   const [blog, setBlog] = useState(blogStructure);
   const [similarBlogs, setSimilrBlogs] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [islikedByUser, setLikedByUser] = useState(false);
+  const [commentsWrapper, setCommentsWrapper] = useState(false);
+  const [totalParentCommentsLoaded, setTotalParentCommentsLoaded] = useState(0);
 
   let {
     title,
@@ -47,12 +45,11 @@ const BlogPage = () => {
   const fetchBlog = () => {
     axios
       .post(import.meta.env.VITE_SERVER_DOMAIN + "/get-blog", { blog_id })
-      .then(({ data: { blog } }) => {
-        // c=need change
-        // blog.comments = await fetchComments({
-        //   blog_id: blog._id,
-        //   setParentCommentCountFun: setTotalParentCommentsLoaded,
-        // });
+      .then(async ({ data: { blog } }) => {
+        blog.comments = await fetchComments({
+          blog_id: blog._id,
+          setParentCommentCountFun: setTotalParentCommentsLoaded,
+        });
         setBlog(blog);
 
         axios
@@ -93,7 +90,6 @@ const BlogPage = () => {
       {loading ? (
         <Loader />
       ) : (
-        //niche ka nahi aaya
         <BlogContext.Provider
           value={{
             blog,
@@ -113,6 +109,7 @@ const BlogPage = () => {
 
             <div className="mt-12">
               <h2>{title}</h2>
+
               <div className="flex max-sm:flex-col justify-between my-8">
                 <div className="flex gap-5 items-start">
                   <img src={profile_img} className="w-12 h-12 rounded-full" />
