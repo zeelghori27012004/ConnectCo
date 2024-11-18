@@ -545,6 +545,39 @@ server.post('/create-blog', verifyJWT, (request, response) => {
 
 })
 
+server.post("/get-blog", (req, res) => {
+
+    let { blog_id, draft, mode } = req.body;
+
+    let incrementVal = mode != 'edit' ? 1 : 0;
+
+    Blog.findOneAndUpdate({ blog_id }, { $inc : { "activity.total_reads": incrementVal } })
+    .populate("author", "personal_info.fullname personal_info.username personal_info.profile_img")
+    .select("title des content banner activity publishedAt blog_id tags")
+    .then(blog => {
+
+        User.findOneAndUpdate({ "personal_info.username": blog.author.personal_info.username }, { 
+            $inc : { "account_info.total_reads": incrementVal }
+        })
+        .catch(err => {
+            return res.status(500).json({ error: err.message })
+        })
+
+        if(blog.draft && !draft){
+            return res.status(500).json({ error: 'you can not access draft blogs' })
+        }
+
+        return res.status(200).json({ blog });
+
+    })
+    .catch(err => {
+        return res.status(500).json({ error: err.message });
+    })
+
+})
+
+
+
 server.listen(PORT, () => {
     console.log('listening on port-> ' + PORT);
 })  
