@@ -935,6 +935,22 @@ server.post("/notifications", verifyJWT,(req,res)=>{
     })
 })
 
+server.post("/all-notifiactions-count", verifyJWT,(req,res)=>{
+    let user_id = req.user;
+    let {filter}= req.body;
+    let findQuery={notification_for: user_id, user:{$ne:user_id}}
+    if(filter != 'all'){
+        findQuery.type =filter;
+    }
+    Notification.countDocuments(findQuery)
+    .then(count=> {
+        return res.status(200).json({totalDocs:count})
+    })
+    .catch(err=>{
+        return res.status(500).json({error:err.message})
+    })
+})
+
 server.listen(PORT, () => {
     console.log('listening on port-> ' + PORT);
 })  
