@@ -15,7 +15,7 @@ import fs from 'fs';
 const serviceAccountKey = JSON.parse(fs.readFileSync('./react-js-blog-website-yt-86e29-firebase-adminsdk-eovop-6e77711d08.json', 'utf8'));
 import aws from 'aws-sdk';
 
-
+import Comment from "./Schema/Comment.js";
 
 
 const server = express();
