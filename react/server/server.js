@@ -712,6 +712,37 @@ server.post("/get-blog-comments", (req, res) => {
 
 })
 
+server.post("/get-replies", (req, res) => {
+
+    let { _id, skip } = req.body;
+
+    let maxLimit = 5;
+
+    Comment.findOne({ _id })
+    .populate({
+        path: "children",
+        options: {
+            limit: maxLimit,
+            skip: skip,
+            sort: { 'commentedAt': -1 }
+        },
+        populate: {
+            path: 'commented_by',
+            select: "personal_info.profile_img personal_info.fullname personal_info.username"
+        },
+        select: "-blog_id -updatedAt"
+    })
+    .select("children")
+    .then(doc => {
+        console.log(doc);
+        return res.status(200).json({ replies: doc.children })
+    })
+    .catch(err => {
+        return res.status(500).json({ error: err.message })
+    })
+
+})
+
 
 server.listen(PORT, () => {
     console.log('listening on port-> ' + PORT);
