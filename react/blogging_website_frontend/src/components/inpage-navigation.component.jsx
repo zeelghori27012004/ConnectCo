@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+
 export let activeTabLineRef;
 export let activeTabRef;
 
@@ -22,6 +23,7 @@ const InPageNavigation = ({ routes, defaultHidden = [ ], defaultActiveIndex = 0,
         setInPageNavIndex(i);
 
     }
+
     useEffect(() => {
 
         if(width > 766 && inPageNavIndex != defaultActiveIndex){
