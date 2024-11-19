@@ -16,6 +16,7 @@ const serviceAccountKey = JSON.parse(fs.readFileSync('./react-js-blog-website-yt
 import aws from 'aws-sdk';
 
 import Comment from "./Schema/Comment.js";
+import Notification from "./Schema/Notification.js";
 
 
 const server = express();
@@ -494,7 +495,7 @@ server.post('/create-blog', verifyJWT, (request, response) => {
 
     let authorId = request.user;
 
-    let { title, des, banner, tags, content, draft } = request.body
+    let { title, des, banner, tags, content, draft, id } = request.body
 
     if (!title.length) {
         return response.status(403).json({ error: "Provide a title" })
@@ -520,29 +521,38 @@ server.post('/create-blog', verifyJWT, (request, response) => {
 
     tags = tags.map(tag => tag.toLowerCase());
 
-    let blog_id = title.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\s+/g, '-').trim() + nanoid();
+    let blog_id = id || title.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\s+/g, '-').trim() + nanoid();
     console.log(blog_id);
 
-    let blog = new Blog({
-        title, des, banner, content, tags, author: authorId, blog_id, draft: Boolean(draft)
-    })
-
-    blog.save().then(blog => {
-
-        let incrementVal = draft ? 0 : 1;
-
-        User.findOneAndUpdate({ _id: authorId }, { $inc: { "account_info.total_posts": incrementVal }, $push: { "blogs": blog._id } })
-            .then(user => {
-                return response.status(200).json({ id: blog.blog_id })
-            })
-            .catch(err => {
-                return response.status(500).json({ error: "Failed to update post count" })
-            })
-    })
+    if(id){
+        Blog.findOneAndUpdate({ blog_id }, { title, des, banner, content, tags, draft: draft ? draft : false })
+        .then(() => {
+            return response.status(200).json({ id: blog_id })
+        })
         .catch(err => {
             return response.status(500).json({ error: err.message })
         })
-
+    } else {
+        let blog = new Blog({
+            title, des, banner, content, tags, author: authorId, blog_id, draft: Boolean(draft)
+        })
+    
+        blog.save().then(blog => {
+    
+            let incrementVal = draft ? 0 : 1;
+    
+            User.findOneAndUpdate({ _id: authorId }, { $inc: { "account_info.total_posts": incrementVal }, $push: { "blogs": blog._id } })
+                .then(user => {
+                    return response.status(200).json({ id: blog.blog_id })
+                })
+                .catch(err => {
+                    return response.status(500).json({ error: "Failed to update post count" })
+                })
+        })
+        .catch(err => {
+            return response.status(500).json({ error: err.message })
+        })
+    }
 })
 
 server.post("/get-blog", (req, res) => {
@@ -788,14 +798,14 @@ server.post("/delete-comment", verifyJWT, (req, res) => {
             return res.status(200).json({ status: 'done' });
 
         } else{
-            return res.status(403).json({ error: "You can not delete this commet" })
+            return res.status(403).json({ error: "You can not delete this comment" })
         }
 
     })
 
 })
 
-Server.post("/change-password", verifyJWT , (req,res) =>{
+server.post("/change-password", verifyJWT , (req,res) =>{
     let {currentPassword, newPassword} = req.body;
     if(!passwordRegex.test(currentPassword) || !passwordRegex.test(newPassword)){
         return res.status(403).json({error: "Password should be 6 to 20 characters long with a numeric, 1 lowercase and 1 uppercase letters"})
@@ -935,7 +945,7 @@ server.post("/notifications", verifyJWT,(req,res)=>{
     })
 })
 
-server.post("/all-notifiactions-count", verifyJWT,(req,res)=>{
+server.post("/all-notifications-count", verifyJWT,(req,res)=>{
     let user_id = req.user;
     let {filter}= req.body;
     let findQuery={notification_for: user_id, user:{$ne:user_id}}
