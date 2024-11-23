@@ -824,7 +824,7 @@ server.post("/change-password", verifyJWT , (req,res) =>{
                 return res.status(403).json({error:"Incorrect current password"})
             }
             bcrypt.hash(newPassword, 10, (err, hashed_password)=>{
-                user.findOneAndUpdate({_id: req.User},{"personal_info.password":hashed_password})
+                User.findOneAndUpdate({_id: req.User},{"personal_info.password":hashed_password})
                 .then((u)=>{
                     return res.status(200).json({status: 'password changed'})
                 })
@@ -875,7 +875,7 @@ server.post("/update-profile", verifyJWT, (req,res)=>{
         return res.status(500).json({error:"You must provide full social links with http(s) included"})
     }
 
-    let UpdateObj = {
+    let updateObj = {
         "personal_info.username": username,
         "personal_info.bio": bio,
         social_links
