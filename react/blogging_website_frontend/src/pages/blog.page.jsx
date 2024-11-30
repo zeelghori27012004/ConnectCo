@@ -23,14 +23,14 @@ export const blogStructure = {
 export const BlogContext = createContext({});
 
 const BlogPage = () => {
-  let { blog_id } = useParams();
+  let { blog_id } = useParams(); // Get blog_id from URL params
 
-  const [blog, setBlog] = useState(blogStructure);
-  const [similarBlogs, setSimilrBlogs] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [islikedByUser, setLikedByUser] = useState(false);
-  const [commentsWrapper, setCommentsWrapper] = useState(false);
-  const [totalParentCommentsLoaded, setTotalParentCommentsLoaded] = useState(0);
+  const [blog, setBlog] = useState(blogStructure); // Initialize blog state
+  const [similarBlogs, setSimilrBlogs] = useState(null); // State for similar blogs
+  const [loading, setLoading] = useState(true); // Loading state
+  const [islikedByUser, setLikedByUser] = useState(false); // Like status
+  const [commentsWrapper, setCommentsWrapper] = useState(false); // Comments section visibility
+  const [totalParentCommentsLoaded, setTotalParentCommentsLoaded] = useState(0); // Total loaded comments
 
   let {
     title,
@@ -40,15 +40,15 @@ const BlogPage = () => {
       personal_info: { fullname, username: author_username, profile_img },
     },
     publishedAt,
-  } = blog;
+  } = blog; // Destructure blog data
 
   const fetchBlog = () => {
     axios
-      .post(import.meta.env.VITE_SERVER_DOMAIN + "/get-blog", { blog_id })
+      .post(import.meta.env.VITE_SERVER_DOMAIN + "/get-blog", { blog_id }) // Fetch blog data
       .then(async ({ data: { blog } }) => {
         blog.comments = await fetchComments({
           blog_id: blog._id,
-          setParentCommentCountFun: setTotalParentCommentsLoaded,
+          setParentCommentCountFun: setTotalParentCommentsLoaded, // Fetch and set comments
         });
         setBlog(blog);
 
@@ -56,39 +56,39 @@ const BlogPage = () => {
           .post(import.meta.env.VITE_SERVER_DOMAIN + "/search-blogs", {
             tag: blog.tags[0],
             limit: 6,
-            eliminate_blog: blog_id,
+            eliminate_blog: blog_id, // Fetch similar blogs
           })
           .then(({ data }) => {
-            setSimilrBlogs(data.blogs);
+            setSimilrBlogs(data.blogs); // Set similar blogs
           });
 
-        setLoading(false);
+        setLoading(false); // Set loading to false after fetching
       })
       .catch((err) => {
-        console.log(err);
-        setLoading(false);
+        console.log(err); // Log any errors
+        setLoading(false); // Set loading to false in case of error
       });
   };
 
   useEffect(() => {
-    resetStates();
+    resetStates(); // Reset states on blog_id change
 
-    fetchBlog();
-  }, [blog_id]);
+    fetchBlog(); // Fetch blog data
+  }, [blog_id]); // Dependency on blog_id to refetch data
 
   const resetStates = () => {
-    setBlog(blogStructure);
-    setSimilrBlogs(null);
-    setLoading(true);
-    setLikedByUser(false);
-    setCommentsWrapper(false);
-    setTotalParentCommentsLoaded(0);
+    setBlog(blogStructure); // Reset blog state
+    setSimilrBlogs(null); // Reset similar blogs
+    setLoading(true); // Set loading state
+    setLikedByUser(false); // Reset like state
+    setCommentsWrapper(false); // Hide comments section
+    setTotalParentCommentsLoaded(0); // Reset loaded comments count
   };
 
   return (
     <AnimationWrapper>
       {loading ? (
-        <Loader />
+        <Loader /> // Show loader if loading
       ) : (
         <BlogContext.Provider
           value={{
@@ -102,46 +102,43 @@ const BlogPage = () => {
             setTotalParentCommentsLoaded,
           }}
         >
-          <CommentsContainer />
-
+          <CommentsContainer /> {/* Render comments container */}
           <div className="max-w-[900px] center py-10 max-lg:px-[5vw]">
-            <img src={banner} className="aspect-video" />
-
+            <img src={banner} className="aspect-video" />{" "}
+            {/* Display blog banner */}
             <div className="mt-12">
-              <h2>{title}</h2>
-
+              <h2>{title}</h2> {/* Display blog title */}
               <div className="flex max-sm:flex-col justify-between my-8">
                 <div className="flex gap-5 items-start">
-                  <img src={profile_img} className="w-12 h-12 rounded-full" />
-
+                  <img src={profile_img} className="w-12 h-12 rounded-full" />{" "}
+                  {/* Author profile image */}
                   <p className="capitalize">
                     {fullname}
                     <br />@
                     <Link to={`/user/${author_username}`} className="underline">
-                      {author_username}
+                      {author_username} {/* Author username as link */}
                     </Link>
                   </p>
                 </div>
                 <p className="text-dark-grey opacity-75 max-sm:mt-6 max-sm:ml-12 max-sm:pl-5">
-                  Published on {getDay(publishedAt)}
+                  Published on {getDay(publishedAt)}{" "}
+                  {/* Display published date */}
                 </p>
               </div>
             </div>
-
-            <BlogInteraction />
-
+            <BlogInteraction />{" "}
+            {/* Blog interaction buttons (like, share, etc.) */}
             <div className="my-12 font-gelasio blog-page-content">
               {content[0].blocks.map((block, i) => {
                 return (
                   <div key={i} className="my-4 md:my-8">
-                    <BlogContent block={block} />
+                    <BlogContent block={block} /> {/* Display content block */}
                   </div>
                 );
               })}
             </div>
-
-            <BlogInteraction />
-
+            <BlogInteraction />{" "}
+            {/* Blog interaction buttons (like, share, etc.) */}
             {similarBlogs != null && similarBlogs.length ? (
               <>
                 <h1 className="text-2xl mt-14 mb-10 font-medium">
@@ -158,13 +155,14 @@ const BlogPage = () => {
                       key={i}
                       transition={{ duration: 1, delay: i * 0.08 }}
                     >
-                      <BlogPostCard content={blog} author={personal_info} />
+                      <BlogPostCard content={blog} author={personal_info} />{" "}
+                      {/* Render similar blog posts */}
                     </AnimationWrapper>
                   );
                 })}
               </>
             ) : (
-              " "
+              " " // No similar blogs available
             )}
           </div>
         </BlogContext.Provider>

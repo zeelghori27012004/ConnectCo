@@ -37,7 +37,7 @@ export const ManagePublishedBlogCard = ({ blog }) => {
     userAuth: { access_token },
   } = useContext(UserContext);
 
-  let [showStat, setShowStat] = useState(false);
+  let [showStat, setShowStat] = useState(false); // State for toggling stats visibility
 
   return (
     <>
@@ -53,10 +53,12 @@ export const ManagePublishedBlogCard = ({ blog }) => {
               to={`/blog/${blog_id}`}
               className="blog-title mb-4 hover:underline"
             >
-              {title}
+              {title} {/* Blog title link */}
             </Link>
 
-            <p className="line-clamp-1">Published on {getDay(publishedAt)}</p>
+            <p className="line-clamp-1">
+              Published on {getDay(publishedAt)} {/* Formatted publish date */}
+            </p>
           </div>
 
           <div className="flex gap-6 mt-3">
@@ -68,26 +70,27 @@ export const ManagePublishedBlogCard = ({ blog }) => {
               className="lg:hidden pr-4 py-2 underline"
               onClick={() => setShowStat((preVal) => !preVal)}
             >
-              Stats
+              Stats {/* Button to toggle stats */}
             </button>
 
             <button
               className="pr-4 py-2 underline text-red"
               onClick={(e) => deleteBlog(blog, access_token, e.target)}
             >
-              Delete
+              Delete {/* Delete blog */}
             </button>
           </div>
         </div>
 
         <div className="max-lg:hidden">
-          <BlogStats stats={activity} />
+          <BlogStats stats={activity} /> {/* Display stats on larger screens */}
         </div>
       </div>
 
       {showStat ? (
         <div className="lg:hidden">
-          <BlogStats stats={activity} />
+          <BlogStats stats={activity} />{" "}
+          {/* Display stats on smaller screens */}
         </div>
       ) : (
         ""
@@ -103,19 +106,20 @@ export const ManageDraftBlogPost = ({ blog }) => {
     userAuth: { access_token },
   } = useContext(UserContext);
 
-  index++;
+  index++; // Adjust index for display (1-based)
 
   return (
     <div className="flex gap-5 lg:gap-10 pb-6 border-b mb-6 border-grey">
       <h1 className="blog-index text-center pl-4 md:pl-6 flex-none">
-        {index < 10 ? "0" + index : index}
+        {index < 10 ? "0" + index : index} {/* Display formatted index */}
       </h1>
 
       <div>
         <h1 className="blog-title mb-3">{title}</h1>
 
         <p className="line-clamp-2 font-gelasio">
-          {des.length ? des : "No Description"}
+          {des.length ? des : "No Description"}{" "}
+          {/* Show description or placeholder */}
         </p>
 
         <div className="flex gap-6 mt-3">
@@ -127,7 +131,7 @@ export const ManageDraftBlogPost = ({ blog }) => {
             className="pr-4 py-2 underline text-red"
             onClick={(e) => deleteBlog(blog, access_token, e.target)}
           >
-            Delete
+            Delete {/* Delete draft blog */}
           </button>
         </div>
       </div>
@@ -138,7 +142,7 @@ export const ManageDraftBlogPost = ({ blog }) => {
 const deleteBlog = (blog, access_token, target) => {
   let { index, blog_id, setStateFunc } = blog;
 
-  target.setAttribute("disabled", true);
+  target.setAttribute("disabled", true); // Disable button during request
 
   axios
     .post(
@@ -146,7 +150,7 @@ const deleteBlog = (blog, access_token, target) => {
       { blog_id },
       {
         headers: {
-          Authorization: `Bearer ${access_token}`,
+          Authorization: `Bearer ${access_token}`, // Auth header
         },
       }
     )
@@ -156,30 +160,24 @@ const deleteBlog = (blog, access_token, target) => {
       setStateFunc((preVal) => {
         let { deletedDocCount, totalDocs, results } = preVal;
 
-        results.splice(index, 1);
+        results.splice(index, 1); // Remove blog from list
 
         if (!deletedDocCount) {
           deletedDocCount = 0;
         }
 
         if (!results.length && totalDocs - 1 > 0) {
-          return null;
+          return null; // Handle case where no results remain
         }
-
-        console.log({
-          ...preVal,
-          totalDocs: totalDocs - 1,
-          deleteDocCount: deletedDocCount + 1,
-        });
 
         return {
           ...preVal,
-          totalDocs: totalDocs - 1,
-          deleteDocCount: deletedDocCount + 1,
+          totalDocs: totalDocs - 1, // Update total count
+          deleteDocCount: deletedDocCount + 1, // Increment delete count
         };
       });
     })
     .catch((err) => {
-      console.log(err);
+      console.log(err); // Log error
     });
 };
