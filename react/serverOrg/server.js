@@ -38,6 +38,7 @@ server.use("/", authRouter); //////////
 server.use("/",blogRouter); //////////
 server.use("/",userRouter); //////
 server.use("/",notificationRouter);
+server.get("/", (req,res)=> {res.json("hello from backend")});
 
 server.listen(PORT, () => {
     console.log('listening on port-> ' + PORT);
