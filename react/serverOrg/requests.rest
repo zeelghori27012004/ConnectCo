@@ -1,0 +1,16 @@
+# POST  http://localhost:3000/get-blog
+# Content-Type: application/json
+
+# {
+#     "blog_id": "The-Last-Laugh-WinsPvWWFEOEIvq8dVsOq_OxL"
+# }
+
+POST http://localhost:3000/signin
+Content-Type: application/json
+{
+    "email": "akshatjindal8050@gmail.com",
+    "password": "Akshat123"
+}
+
+
+//Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3M2M0YTI2MjE4ZGM1NTU2NzU2ODQwNyIsImlhdCI6MTczMjAwNDM5MH0.Vc2UzcP2JVsAhg5c1K1oE3V8niPADcM5OB8riRuPRvY
