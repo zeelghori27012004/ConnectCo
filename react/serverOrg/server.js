@@ -20,7 +20,7 @@ import notificationRouter from "./Routers/notificationRouter.js"
 import LoginRouter from "./Routers/authRouter.js";
 
 const server = express();
-let PORT = 3000;
+let PORT = process.env.PORT||3000;
 
 // admin.initializeApp({
 //     credential: admin.credential.cert(serviceAccountKey)
