@@ -62,12 +62,12 @@ describe("AnimationWrapper() AnimationWrapper method", () => {
 
     it("should handle undefined keyValue", () => {
       const { getByText } = render();
-      // <pageAnimation.AnimationWrapper>
-      //   <div>Test Child</div>
-      // </pageAnimation.AnimationWrapper>
+      <pageAnimation.AnimationWrapper>
+        <div>Test Child</div>
+      </pageAnimation.AnimationWrapper>
 
-      // const childElement = getByText('Test Child');
-      // expect(childElement).toBeInTheDocument();
+      const childElement = getByText('Test Child');
+      expect(childElement).toBeInTheDocument();
     });
 
     it("should handle null animation properties", () => {
