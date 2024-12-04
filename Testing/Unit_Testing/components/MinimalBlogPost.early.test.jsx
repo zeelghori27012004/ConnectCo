@@ -106,7 +106,7 @@ describe("MinimalBlogPost Component", () => {
         <MinimalBlogPost blog={blog} index={1} />
       );
 
-      // expect(getByAltText('No Image')).toHaveAttribute('src', '');
+      expect(getByAltText('No Image')).toHaveAttribute('src', '');
     });
 
     it("should handle missing author information gracefully", () => {
@@ -124,7 +124,7 @@ describe("MinimalBlogPost Component", () => {
       };
       const { getByText } = render(<MinimalBlogPost blog={blog} index={2} />);
 
-      // expect(getByText(' @')).toBeInTheDocument();
+      expect(getByText(' @')).toBeInTheDocument();
     });
 
     it("should handle missing published date gracefully", () => {
@@ -142,7 +142,7 @@ describe("MinimalBlogPost Component", () => {
       };
       const { getByText } = render(<MinimalBlogPost blog={blog} index={3} />);
 
-      // expect(getByText('Mocked Day')).toBeInTheDocument();
+      expect(getByText('Mocked Day')).toBeInTheDocument();
     });
   });
 });

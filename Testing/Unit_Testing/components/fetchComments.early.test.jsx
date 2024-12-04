@@ -25,8 +25,7 @@ describe("fetchComments() fetchComments method", () => {
         setParentCommentCountFun,
       });
 
-      // Assert
-      //
+      
     });
 
     it("should append new comments to existing comment_array", async () => {
@@ -44,8 +43,8 @@ describe("fetchComments() fetchComments method", () => {
         comment_array: existingComments,
       });
 
-      // Assert
-      //expect(result).toEqual({ results: [...existingComments, ...newComments] });
+      Assert
+      expect(result).toEqual({ results: [...existingComments, ...newComments] });
     });
   });
 
@@ -63,8 +62,8 @@ describe("fetchComments() fetchComments method", () => {
         setParentCommentCountFun,
       });
 
-      // Assert
-      //expect(result).toEqual({ results: [] });
+      Assert
+      expect(result).toEqual({ results: [] });
     });
 
     it("should handle network error gracefully", async () => {

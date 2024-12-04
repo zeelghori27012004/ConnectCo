@@ -50,14 +50,14 @@ describe("AnimationWrapper() AnimationWrapper method", () => {
       </pageAnimation.AnimationWrapper>;
 
       const wrapperElement = container.firstChild;
-      // expect(wrapperElement).toHaveClass('custom-class');
+      expect(wrapperElement).toHaveClass('custom-class');
     });
   });
 
   describe("Edge Cases", () => {
     it("should handle missing children gracefully", () => {
       const { container } = render();
-      // <pageAnimation.AnimationWrapper keyValue="test-key" />
+      <pageAnimation.AnimationWrapper keyValue="test-key" />
     });
 
     it("should handle undefined keyValue", () => {

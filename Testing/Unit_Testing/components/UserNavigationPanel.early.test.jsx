@@ -52,7 +52,7 @@ describe("UserNavigationPanel() UserNavigationPanel method", () => {
     it("should render all navigation links correctly", () => {
       render(<UserNavigationPanel />);
       expect(screen.getByText("Write")).toBeInTheDocument();
-      // expect(screen.getByText('Profile')).toBeInTheDocument();
+      expect(screen.getByText('Profile')).toBeInTheDocument();
       expect(screen.getByText("Dashboard")).toBeInTheDocument();
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
@@ -60,7 +60,7 @@ describe("UserNavigationPanel() UserNavigationPanel method", () => {
     it("should render the sign out button with username", () => {
       render(<UserNavigationPanel />);
       expect(screen.getByText("Sign Out")).toBeInTheDocument();
-      // expect(screen.getByText('@testuser')).toBeInTheDocument();
+      expect(screen.getByText('@testuser')).toBeInTheDocument();
     });
 
     it("should call removeFromSession and setUserAuth on sign out", () => {

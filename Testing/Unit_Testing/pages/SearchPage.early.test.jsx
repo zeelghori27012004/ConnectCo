@@ -71,7 +71,7 @@ describe("SearchPage() SearchPage method", () => {
     it("should render the SearchPage component with initial loading state", () => {
       // Test to ensure the component renders with a loading state initially
       render(<SearchPage />);
-      // expect(screen.getAllByText('Loader')).toHaveLength(2);
+      expect(screen.getAllByText('Loader')).toHaveLength(2);
     });
 
     it("should render blogs and users when data is available", async () => {
@@ -88,10 +88,10 @@ describe("SearchPage() SearchPage method", () => {
 
       render(<SearchPage />);
 
-      // await waitFor(() => {
-      //   expect(screen.getByText('BlogPostCard')).toBeInTheDocument();
-      //   expect(screen.getByText('UserCard')).toBeInTheDocument();
-      // });
+      await waitFor(() => {
+        expect(screen.getByText('BlogPostCard')).toBeInTheDocument();
+        expect(screen.getByText('UserCard')).toBeInTheDocument();
+      });
     });
   });
 

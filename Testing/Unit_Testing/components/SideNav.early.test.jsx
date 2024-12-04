@@ -8,7 +8,7 @@ import { vi } from "vitest";
 describe("Happy Paths", () => {
   test("should render the SideNav component when access_token is present", () => {
     // Arrange
-    // const contextValue = mockUserContext('valid_token', false);
+    const contextValue = mockUserContext('valid_token', false);
 
     // Act
     render(
@@ -25,7 +25,7 @@ describe("Happy Paths", () => {
 
   test("should navigate to /signin when access_token is null", () => {
     // Arrange
-    // const contextValue = mockUserContext(null, false);
+    const contextValue = mockUserContext(null, false);
 
     // Act
     render(
@@ -54,8 +54,8 @@ describe("Happy Paths", () => {
     );
 
     // Assert
-    // expect(screen.getByText('Notifications')).toBeInTheDocument();
-    // expect(screen.getByRole('img', { hidden: true })).toBeInTheDocument();
+    expect(screen.getByText('Notifications')).toBeInTheDocument();
+    expect(screen.getByRole('img', { hidden: true })).toBeInTheDocument();
   });
 });
 
@@ -77,12 +77,12 @@ describe("Edge Cases", () => {
     );
 
     // Assert
-    // expect(screen.getByText('Dashboard')).toBeInTheDocument();
+    expect(screen.getByText('Dashboard')).toBeInTheDocument();
   });
 
   test("should toggle side navigation visibility on button click", () => {
     // Arrange
-    // const contextValue = mockUserContext('valid_token', false);
+    const contextValue = mockUserContext('valid_token', false);
 
     // Act
     render(
