@@ -57,7 +57,7 @@ Backend
 
 git clone https://github.com/zeelghori27012004/ConnectCo
 cd ConnectCo
-cd react
+cd website_codes
 
 ### Enviornment variables
 
