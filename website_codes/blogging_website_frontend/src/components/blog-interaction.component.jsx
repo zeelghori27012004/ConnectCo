@@ -6,7 +6,6 @@ import { Toaster, toast } from "react-hot-toast";
 import axios from "axios";
 
 const BlogInteraction = () => {
-  // Extract blog data
   let {
     blog,
     blog: {
@@ -25,14 +24,13 @@ const BlogInteraction = () => {
     setCommentsWrapper,
   } = useContext(BlogContext);
 
-  // Extract user data
   let {
     userAuth: { username, access_token },
   } = useContext(UserContext);
 
   useEffect(() => {
     if (access_token) {
-      // Check like status
+      // make request to server to get like information
       axios
         .post(
           import.meta.env.VITE_SERVER_DOMAIN + "/isliked-by-user",
@@ -54,12 +52,11 @@ const BlogInteraction = () => {
 
   const handleLike = () => {
     if (access_token) {
-      // Toggle like status
+      // like the blog
       setLikedByUser((preVal) => !preVal);
 
       !islikedByUser ? total_likes++ : total_likes--;
 
-      // Update blog activity
       setBlog({ ...blog, activity: { ...activity, total_likes } });
 
       axios
@@ -79,20 +76,18 @@ const BlogInteraction = () => {
           console.log(err);
         });
     } else {
-      // Prompt login
+      // not logged in
       toast.error("please login to like this blog");
     }
   };
 
   return (
     <>
-      {/* Toast notifications */}
       <Toaster />
       <hr className="border-grey my-2" />
 
       <div className="flex gap-6 justify-between">
         <div className="flex gap-3 items-center">
-          {/* Like button */}
           <button
             onClick={handleLike}
             className={
@@ -108,7 +103,6 @@ const BlogInteraction = () => {
           </button>
           <p className="text-xl text-dark-grey">{total_likes}</p>
 
-          {/* Comment button */}
           <button
             onClick={() => setCommentsWrapper((preVal) => !preVal)}
             className="w-10 h-10 rounded-full flex items-center justify-center bg-grey/80"
@@ -119,7 +113,6 @@ const BlogInteraction = () => {
         </div>
 
         <div className="flex gap-6 items-center">
-          {/* Edit option */}
           {username == author_username ? (
             <Link
               to={`/editor/${blog_id}`}
@@ -131,7 +124,6 @@ const BlogInteraction = () => {
             ""
           )}
 
-          {/* Share on Twitter */}
           <Link
             to={`https://twitter.com/intent/tweet?text=Read ${title}&url=${location.href}`}
           >

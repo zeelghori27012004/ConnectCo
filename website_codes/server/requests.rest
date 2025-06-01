@@ -1,16 +1,9 @@
-# POST  http://localhost:3000/get-blog
+
+# POST http://localhost:3000/user-written-blogs
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MTEyYjdkNGE1ODhmZjIyNzM0ZWU4ZCIsImlhdCI6MTcwNDYyMjc4NH0.BzIpSRd1CudEPjnooONHtxjCcYjaG1aMjBxGKoFF3h4
 # Content-Type: application/json
 
 # {
-#     "blog_id": "The-Last-Laugh-WinsPvWWFEOEIvq8dVsOq_OxL"
+#     "page" : 1,
+#     "draft" : true
 # }
-
-POST http://localhost:3000/signin
-Content-Type: application/json
-{
-    "email": "akshatjindal8050@gmail.com",
-    "password": "Akshat123"
-}
-
-
-//Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3M2M0YTI2MjE4ZGM1NTU2NzU2ODQwNyIsImlhdCI6MTczMjAwNDM5MH0.Vc2UzcP2JVsAhg5c1K1oE3V8niPADcM5OB8riRuPRvY

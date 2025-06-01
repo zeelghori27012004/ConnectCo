@@ -10,7 +10,6 @@ const CommentField = ({
   replyingTo = undefined,
   setReplying,
 }) => {
-  // Access blog data
   let {
     blog,
     blog: {
@@ -25,22 +24,18 @@ const CommentField = ({
     setTotalParentCommentsLoaded,
   } = useContext(BlogContext);
 
-  // Access user data
   let {
     userAuth: { access_token, username, fullname, profile_img },
   } = useContext(UserContext);
 
-  // State for comment
   const [comment, setComment] = useState("");
 
   const handleComment = () => {
     if (!access_token) {
-      // Prompt login
       return toast.error("login first to leave a comment");
     }
 
     if (!comment.length) {
-      // Check empty comment
       return toast.error("Write something to leave a comment....");
     }
 
@@ -60,7 +55,6 @@ const CommentField = ({
         }
       )
       .then(({ data }) => {
-        // Reset comment field
         setComment("");
 
         data.commented_by = {
@@ -70,7 +64,6 @@ const CommentField = ({
         let newCommentArr;
 
         if (replyingTo) {
-          // Add reply
           commentsArr[index].children.push(data._id);
 
           data.childrenLevel = commentsArr[index].childrenLevel + 1;
@@ -84,7 +77,6 @@ const CommentField = ({
 
           setReplying(false);
         } else {
-          // Add parent comment
           data.childrenLevel = 0;
 
           newCommentArr = [data, ...commentsArr];
@@ -92,7 +84,6 @@ const CommentField = ({
 
         let parentCommentIncrementval = replyingTo ? 0 : 1;
 
-        // Update blog data
         setBlog({
           ...blog,
           comments: { ...comments, results: newCommentArr },
@@ -115,7 +106,6 @@ const CommentField = ({
 
   return (
     <>
-      {/* Display toaster notifications */}
       <Toaster />
       <textarea
         value={comment}

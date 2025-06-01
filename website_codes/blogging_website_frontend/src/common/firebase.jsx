@@ -1,25 +1,32 @@
 import { initializeApp } from "firebase/app";
 import { GoogleAuthProvider, getAuth, signInWithPopup } from 'firebase/auth'
-// import toast from "react-hot-toast";
+
 const firebaseConfig = {
-  apiKey: "AIzaSyAQV-67FeJJTSk_2n4yGRsLy-3OJ8gle2U",
-  authDomain: "react-js-blog-website-yt-86e29.firebaseapp.com",
-  projectId: "react-js-blog-website-yt-86e29",
-  storageBucket: "react-js-blog-website-yt-86e29.firebasestorage.app",
-  messagingSenderId: "1016673754791",
-  appId: "1:1016673754791:web:d1cae4802b45ac044e4582"
+  apiKey: "AIzaSyAqo_rhS_CiseynT2ncpEHwWc3TPjhAtLk",
+  authDomain: "connectco-55bb8.firebaseapp.com",
+  projectId: "connectco-55bb8",
+  storageBucket: "connectco-55bb8.firebasestorage.app",
+  messagingSenderId: "543736069418",
+  appId: "1:543736069418:web:bc4f52c537990d6d277253"
 };
+
 const app = initializeApp(firebaseConfig);
+
 const provider = new GoogleAuthProvider();
+
 const auth = getAuth();
+
 export const authWithGoogle = async () => {
-    let user = NULL;
+
+    let user = null;
+
     await signInWithPopup(auth, provider)
     .then((result) => {
-        user = result.user;
+        user = result.user
     })
-    .catch((error) => {
-        console.log(error)
+    .catch((err) => {
+        console.log(err)
     })
+
     return user;
 }

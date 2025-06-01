@@ -16,7 +16,7 @@ const UserNavigationPanel = () => {
     return (
         <AnimationWrapper 
             className="absolute right-0 z-50"
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.5 }}
         >
 
             <div className="bg-white abosolute right-0 border border-grey w-60 duration-200">

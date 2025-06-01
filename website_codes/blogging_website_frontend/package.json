@@ -22,7 +22,7 @@
     "@editorjs/quote": "^2.5.0",
     "@flaticon/flaticon-uicons": "^2.2.0",
     "axios": "^1.4.0",
-    "firebase": "^10.1.0",
+    "firebase": "^10.14.1",
     "framer-motion": "^10.13.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -41,6 +41,6 @@
     "postcss": "^8.4.27",
     "tailwindcss": "^3.3.3",
     "tw-colors": "^3.3.1",
-    "vite": "^4.5.5"
+    "vite": "^6.3.5"
   }
 }

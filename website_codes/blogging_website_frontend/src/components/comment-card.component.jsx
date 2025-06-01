@@ -8,7 +8,6 @@ import { BlogContext } from "../pages/blog.page";
 import axios from "axios";
 
 const CommentCard = ({ index, leftVal, commentData }) => {
-  // Extract comment details
   let {
     commented_by: {
       personal_info: { profile_img, fullname, username: commented_by_username },
@@ -19,7 +18,6 @@ const CommentCard = ({ index, leftVal, commentData }) => {
     children,
   } = commentData;
 
-  // Extract blog context
   let {
     blog,
     blog: {
@@ -35,7 +33,6 @@ const CommentCard = ({ index, leftVal, commentData }) => {
     setTotalParentCommentsLoaded,
   } = useContext(BlogContext);
 
-  // Extract user context
   let {
     userAuth: { access_token, username },
   } = useContext(UserContext);
@@ -43,7 +40,6 @@ const CommentCard = ({ index, leftVal, commentData }) => {
   const [isReplying, setReplying] = useState(false);
 
   const getParentIndex = () => {
-    // Get parent comment index
     let startingPoint = index - 1;
 
     try {
@@ -60,7 +56,6 @@ const CommentCard = ({ index, leftVal, commentData }) => {
   };
 
   const removeCommentsCards = (startingPoint, isDelete = false) => {
-    // Remove comment cards
     if (commentsArr[startingPoint]) {
       while (
         commentsArr[startingPoint].childrenLevel > commentData.childrenLevel
@@ -93,7 +88,6 @@ const CommentCard = ({ index, leftVal, commentData }) => {
       setTotalParentCommentsLoaded((preVal) => preVal - 1);
     }
 
-    // Update blog state
     setBlog({
       ...blog,
       comments: { results: commentsArr },
@@ -107,7 +101,6 @@ const CommentCard = ({ index, leftVal, commentData }) => {
   };
 
   const loadReplies = ({ skip = 0, currentIndex = index }) => {
-    // Load replies for comment
     if (commentsArr[currentIndex].children.length) {
       hideReplies();
 
@@ -135,7 +128,6 @@ const CommentCard = ({ index, leftVal, commentData }) => {
   };
 
   const deleteComment = (e) => {
-    // Delete comment
     e.target.setAttribute("disabled", true);
 
     axios
@@ -158,14 +150,12 @@ const CommentCard = ({ index, leftVal, commentData }) => {
   };
 
   const hideReplies = () => {
-    // Hide replies
     commentData.isReplyLoaded = false;
 
     removeCommentsCards(index + 1);
   };
 
   const handleReplyClick = () => {
-    // Handle reply action
     if (!access_token) {
       return toast.error("login first to leave a reply");
     }
@@ -174,7 +164,6 @@ const CommentCard = ({ index, leftVal, commentData }) => {
   };
 
   const LoadMoreRepliesButton = () => {
-    // Button for loading more replies
     let parentIndex = getParentIndex();
 
     let button = (
@@ -207,7 +196,6 @@ const CommentCard = ({ index, leftVal, commentData }) => {
 
   return (
     <div className="w-full" style={{ paddingLeft: `${leftVal * 10}px` }}>
-      {/* Comment card */}
       <div className="my-5 p-6 rounded-md border border-grey">
         <div className="flex gap-3 items-center mb-8">
           <img src={profile_img} className="w-6 h-6 rounded-full" />
@@ -220,7 +208,6 @@ const CommentCard = ({ index, leftVal, commentData }) => {
         <p className="font-gelasio text-xl ml-3">{comment}</p>
 
         <div className="flex gap-5 items-center mt-5">
-          {/* Show or hide replies */}
           {commentData.isReplyLoaded ? (
             <button
               className="text-dark-grey p-2 px-3 hover:bg-grey/30 rounded-md flex items-center gap-2"
@@ -237,12 +224,10 @@ const CommentCard = ({ index, leftVal, commentData }) => {
             </button>
           )}
 
-          {/* Reply button */}
           <button className="underline" onClick={handleReplyClick}>
             Reply
           </button>
 
-          {/* Delete comment button */}
           {username == commented_by_username || username == blog_author ? (
             <button
               className="p-2 px-3 rounded-md border border-grey ml-auto hover:bg-red/30 hover:text-red flex items-center"
@@ -255,7 +240,6 @@ const CommentCard = ({ index, leftVal, commentData }) => {
           )}
         </div>
 
-        {/* Comment reply field */}
         {isReplying ? (
           <div className="mt-8">
             <CommentField

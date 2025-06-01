@@ -6,12 +6,11 @@ import NoDataMessage from "./nodata.component";
 import AnimationWrapper from "../common/page-animation";
 import CommentCard from "./comment-card.component";
 
-// Function to fetch comments for a blog
 export const fetchComments = async ({
-  skip = 0, // Number of comments to skip
-  blog_id, // ID of the blog
-  setParentCommentCountFun, // Function to update parent comment count
-  comment_array = null, // Existing comments array
+  skip = 0,
+  blog_id,
+  setParentCommentCountFun,
+  comment_array = null,
 }) => {
   let res;
 
@@ -22,15 +21,15 @@ export const fetchComments = async ({
     })
     .then(({ data }) => {
       data.map((comment) => {
-        comment.childrenLevel = 0; // Initialize comment's hierarchical level
+        comment.childrenLevel = 0;
       });
 
-      setParentCommentCountFun((preVal) => preVal + data.length); // Update parent comments count
+      setParentCommentCountFun((preVal) => preVal + data.length);
 
       if (comment_array == null) {
-        res = { results: data }; // New comments fetched
+        res = { results: data };
       } else {
-        res = { results: [...comment_array, ...data] }; // Append to existing comments
+        res = { results: [...comment_array, ...data] };
       }
     });
 
@@ -39,21 +38,20 @@ export const fetchComments = async ({
 
 const CommentsContainer = () => {
   let {
-    blog, // Blog details
+    blog,
     blog: {
-      _id, // Blog ID
-      title, // Blog title
-      comments: { results: commentsArr }, // Existing comments
-      activity: { total_parent_comments }, // Total parent comments count
+      _id,
+      title,
+      comments: { results: commentsArr },
+      activity: { total_parent_comments },
     },
-    commentsWrapper, // State to toggle comments container visibility
-    setCommentsWrapper, // Function to toggle comments container
-    totalParentCommentsLoaded, // Number of parent comments loaded
-    setTotalParentCommentsLoaded, // Function to update loaded parent comments count
-    setBlog, // Function to update blog state
+    commentsWrapper,
+    setCommentsWrapper,
+    totalParentCommentsLoaded,
+    setTotalParentCommentsLoaded,
+    setBlog,
   } = useContext(BlogContext);
 
-  // Function to load more comments
   const loadMoreComments = async () => {
     let newCommentsArr = await fetchComments({
       skip: totalParentCommentsLoaded,
@@ -62,7 +60,7 @@ const CommentsContainer = () => {
       comment_array: commentsArr,
     });
 
-    setBlog({ ...blog, comments: newCommentsArr }); // Update blog comments in state
+    setBlog({ ...blog, comments: newCommentsArr });
   };
 
   return (
@@ -76,7 +74,7 @@ const CommentsContainer = () => {
       <div className="relative">
         <h1 className="text-xl font-medium">Comments</h1>
         <p className="text-lg mt-2 w-[70%] text-dark-grey line-clamp-1">
-          {title} {/* Display the blog's title */}
+          {title}
         </p>
 
         <button
@@ -86,29 +84,33 @@ const CommentsContainer = () => {
           <i className="fi fi-br-cross text-2xl mt-1"></i>
         </button>
       </div>
+
       <hr className="border-grey my-8 w-[120%] -ml-10" />
-      <CommentField action="comment" /> {/* Text area to add a comment */}
+
+      <CommentField action="comment" />
+
       {commentsArr && commentsArr.length ? (
         commentsArr.map((comment, i) => {
           return (
             <AnimationWrapper key={i}>
               <CommentCard
-                index={i} // Pass comment index
-                leftVal={comment.childrenLevel * 4} // Set left padding for nested comments
-                commentData={comment} // Pass comment data
+                index={i}
+                leftVal={comment.childrenLevel * 4}
+                commentData={comment}
               />
             </AnimationWrapper>
           );
         })
       ) : (
-        <NoDataMessage message="No Comments" /> // Display if no comments
+        <NoDataMessage message="No Comments" />
       )}
+
       {total_parent_comments > totalParentCommentsLoaded ? (
         <button
           onClick={loadMoreComments}
           className="text-dark-grey p-2 px-3 hover:bg-grey/30 rounded-md flex items-center gap-2"
         >
-          Load More {/* Button to load additional comments */}
+          Load More
         </button>
       ) : (
         ""
