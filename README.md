@@ -41,8 +41,8 @@ Backend
 ##  Tech Stack
 
 - **Frontend**: React.js, TailwindCSS, HTML, JavaSCript
-- **Backend**: Node.js, Express.js, AWS(Amazon Web Services)
-- **Database**: MongoDB (Mongoose)
+- **Backend**: Node.js, Express.js, google firebase authentication
+- **Database**: MongoDB (Mongoose), AWS(Amazon Web Services) S3 bucket
 - **Authentication**: Google OAuth, JWT
 
 
