@@ -4,9 +4,9 @@
 
 ## Live Demo
 
-Frontend
+Frontend : https://connectco-frontend.onrender.com
 
-Backend
+Backend : https://connectco-0sw5.onrender.com
 
 ##  Features
 
