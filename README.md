@@ -1,6 +1,6 @@
 # ConnectCo 
 
-**ConnectCo** is a modern, community-driven blogging platform designed to bring together users—especially introverts—through expressive, personalized content. While blogs may seem old-fashioned, they remain one of the most powerful ways to share your thoughts, ideas, and identity. Our goal is to channel this power into building a connected community centered around our college.
+**ConnectCo** is a modern, community-driven blogging platform designed to bring together users especially introverts through expressive, personalized content. While blogs may seem old-fashioned, they remain one of the most powerful ways to share your thoughts, ideas, and identity. Our goal is to channel this power into building a connected community centered around our college.
 
 ## Live Demo
 
@@ -66,22 +66,30 @@ cd website_codes
 Create a .env file in the root of your backend directory with:
 
 DB_LOCATION=
+
 SECRET_ACCESS_KEY=
+
 AWS_SECRET_ACCESS_KEY=
+
 AWS_ACCESS_KEY=
+
 AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE=
 
 
 ### Setup Backend
 
 cd server
+
 npm install
+
 node server.js
 
 ### Setup Frontend
 
 cd blogging_website_frontend
+
 npm install
+
 npm run dev
 
 
