@@ -56,12 +56,15 @@ Backend : https://connectco-0sw5.onrender.com
 ### Clone the Repository
 
 git clone https://github.com/zeelghori27012004/ConnectCo
+
 cd ConnectCo
+
 cd website_codes
 
 ### Enviornment variables
 
 Create a .env file in the root of your backend directory with:
+
 DB_LOCATION=
 SECRET_ACCESS_KEY=
 AWS_SECRET_ACCESS_KEY=
