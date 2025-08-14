@@ -32,7 +32,7 @@ let passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/; // regex for pass
 
 server.use(express.json());
 server.use(cors({
-  origin: "http://localhost:5173", // your deployed frontend URL
+  origin: "https://connectco-frontend.onrender.com", // your deployed frontend URL
   credentials: true
 }));
 
