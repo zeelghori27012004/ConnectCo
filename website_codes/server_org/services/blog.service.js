@@ -63,7 +63,13 @@ export const getBlogCountByQuery = async ({ tag, author, query }) => {
   if (tag) {
     findQuery = { tags: tag, draft: false };
   } else if (query) {
-    findQuery = { draft: false, title: new RegExp(query, "i") };
+    findQuery = {
+      draft: false,
+      $or: [
+        { title: new RegExp(query, "i") },
+        { tags: new RegExp(query, "i") }
+      ]
+    };
   } else if (author) {
     findQuery = { author, draft: false };
   }
