@@ -35,8 +35,14 @@ export const searchBlogs = async (query) => {
 
   if (tag) {
     findQuery = { tags: tag, draft: false, blog_id: { $ne: eliminate_blog } };
-  } else if (searchQuery) {
-    findQuery = { draft: false, title: new RegExp(searchQuery, "i") };
+  } else if (query) {
+    findQuery = {
+      draft: false,
+      $or: [
+        { title: new RegExp(query, "i") },
+        { tags: new RegExp(query, "i") }
+      ]
+    };
   } else if (author) {
     findQuery = { author, draft: false };
   }
