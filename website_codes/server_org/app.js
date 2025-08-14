@@ -20,12 +20,12 @@ server.use(corsMiddleware);
 connectDB();
 
 // Routes
-server.use("/", authRoutes);
-server.use("/", blogRoutes);
-server.use("/", userRoutes);
-server.use("/", commentRoutes);
-server.use("/", notificationRoutes);
-server.use("/", utilRoutes);
+server.use("/auth", authRoutes);
+server.use("/blogs", blogRoutes);
+server.use("/user", userRoutes);
+server.use("/comment", commentRoutes);
+server.use("/notification", notificationRoutes);
+server.use("/util", utilRoutes);
 
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
